@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="fr" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexusGuard Village Mini</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --nexus-water: #0dcaf0;
+            --nexus-energy: #ffc107;
+            --nexus-food: #198754;
+            --card-bg: #1e2125;
+            --bg-color: #121212;
+        }
+        body {
+            background-color: var(--bg-color);
+            color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding-bottom: 2rem;
+        }
+        .navbar {
+            background: linear-gradient(90deg, #0d6efd 0%, #198754 100%);
+        }
+        .navbar-brand {
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+        .nexus-card {
+            background-color: var(--card-bg);
+            border-radius: 15px;
+            border: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            transition: transform 0.3s ease;
+            height: 100%;
+        }
+        .nexus-card:hover {
+            transform: translateY(-5px);
+        }
+        .card-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+        .value-display {
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+        .status-indicator {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+        }
+        .status-ok { background-color: #198754; box-shadow: 0 0 10px #198754; }
+        .status-warn { background-color: #ffc107; box-shadow: 0 0 10px #ffc107; }
+        .status-alert { background-color: #dc3545; box-shadow: 0 0 10px #dc3545; }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+            background-color: var(--card-bg);
+            border-radius: 15px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+        .pump-btn {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 10px;
+        }
+        .reason-list {
+            list-style-type: none;
+            padding-left: 0;
+            margin-bottom: 0;
+        }
+        .reason-list li {
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .reason-list li:last-child {
+            border-bottom: none;
+        }
+        .mode-badge {
+            font-size: 0.9rem;
+            padding: 5px 10px;
+            border-radius: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-dark mb-4 shadow">
+        <div class="container">
+            <span class="navbar-brand mb-0 h1">
+                <i class="fa-solid fa-leaf text-warning me-2"></i>NexusGuard Village Mini
+            </span>
+            <span class="badge bg-dark border" id="connection-status">
+                <i class="fa-solid fa-circle text-danger me-1"></i> Déconnecté
+            </span>
+        </div>
+    </nav>
+
+    <div class="container">
+        
+        <!-- System Status Banner -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card nexus-card">
+                    <div class="card-body d-flex justify-content-between align-items-center flex-wrap">
+                        <div>
+                            <h4 class="mb-1">Statut Système WEF <span id="nexus-status-indicator" class="status-indicator status-ok ms-2"></span></h4>
+                            <p class="text-muted mb-0">Dernière mise à jour : <span id="last-update">--</span></p>
+                        </div>
+                        <div class="d-flex align-items-center mt-3 mt-md-0">
+                            <span class="me-3">Mode : </span>
+                            <div class="btn-group" role="group">
+                                <input type="radio" class="btn-check" name="mode-switch" id="mode-auto" autocomplete="off" checked>
+                                <label class="btn btn-outline-success" for="mode-auto">Automatique</label>
+
+                                <input type="radio" class="btn-check" name="mode-switch" id="mode-manual" autocomplete="off">
+                                <label class="btn btn-outline-warning" for="mode-manual">Manuel</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- WEF Cards -->
+        <div class="row g-4 mb-4">
+            <!-- FOOD: Soil -->
+            <div class="col-md-6 col-lg-3">
+                <div class="card nexus-card text-center">
+                    <div class="card-body">
+                        <i class="fa-solid fa-seedling card-icon" style="color: var(--nexus-food);"></i>
+                        <h5 class="card-title">Humidité Sol</h5>
+                        <div class="value-display" id="val-soil">-- <span class="fs-4">%</span></div>
+                        <p class="text-muted small mt-2">Seuil cible : > <span id="thresh-soil-dry">40</span>%</p>
+                        <div class="progress mt-3" style="height: 10px;">
+                            <div id="prog-soil" class="progress-bar bg-success" role="progressbar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- WATER: Tank Level -->
+            <div class="col-md-6 col-lg-3">
+                <div class="card nexus-card text-center">
+                    <div class="card-body">
+                        <i class="fa-solid fa-water card-icon" style="color: var(--nexus-water);"></i>
+                        <h5 class="card-title">Niveau d'Eau</h5>
+                        <div class="value-display" id="val-water-pct">-- <span class="fs-4">%</span></div>
+                        <p class="text-muted small mt-2"><span id="val-water-cm">--</span> cm | Min : <span id="thresh-water-min">20</span>%</p>
+                        <div class="progress mt-3" style="height: 10px;">
+                            <div id="prog-water" class="progress-bar bg-info" role="progressbar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ENERGY: Temperature -->
+            <div class="col-md-6 col-lg-3">
+                <div class="card nexus-card text-center">
+                    <div class="card-body">
+                        <i class="fa-solid fa-temperature-three-quarters card-icon" style="color: var(--nexus-energy);"></i>
+                        <h5 class="card-title">Température</h5>
+                        <div class="value-display" id="val-temp">-- <span class="fs-4">°C</span></div>
+                        <p class="text-muted small mt-2">Air : <span id="val-hum">--</span>% | Max : <span id="thresh-temp-max">45</span>°C</p>
+                        <div class="progress mt-3" style="height: 10px;">
+                            <div id="prog-temp" class="progress-bar bg-warning" role="progressbar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PUMP: Control -->
+            <div class="col-md-6 col-lg-3">
+                <div class="card nexus-card text-center">
+                    <div class="card-body d-flex flex-column justify-content-center align-items-center">
+                        <h5 class="card-title mb-4">Contrôle Pompe</h5>
+                        <div id="pump-status-icon" class="mb-3">
+                            <i class="fa-solid fa-power-off" style="font-size: 4rem; color: #dc3545; transition: color 0.3s;"></i>
+                        </div>
+                        <h4 id="pump-status-text" class="text-danger mb-4">ARRÊTÉE</h4>
+                        
+                        <div class="w-100 mt-auto">
+                            <button id="btn-pump-toggle" class="btn btn-outline-light pump-btn disabled">
+                                Basculer Pompe (Manuel)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Logic & Charts -->
+        <div class="row g-4">
+            <!-- Nexus Reasons -->
+            <div class="col-lg-4">
+                <div class="card nexus-card">
+                    <div class="card-body">
+                        <h5 class="card-title border-bottom border-secondary pb-2"><i class="fa-solid fa-brain text-info me-2"></i>Logique Nexus (WEF)</h5>
+                        <ul id="nexus-reasons" class="reason-list mt-3">
+                            <li class="text-muted fst-italic">En attente de données...</li>
+                        </ul>
+                        
+                        <!-- Settings Form -->
+                        <div class="mt-4 pt-3 border-top border-secondary">
+                            <h6><i class="fa-solid fa-sliders text-secondary me-2"></i>Paramètres Rapides</h6>
+                            <form id="form-thresholds" class="mt-2">
+                                <div class="row g-2 align-items-center mb-2">
+                                    <div class="col-auto"><label class="col-form-label col-form-label-sm">Sol Sec (%) :</label></div>
+                                    <div class="col"><input type="number" id="input-soil-dry" class="form-control form-control-sm" value="40"></div>
+                                </div>
+                                <div class="row g-2 align-items-center mb-2">
+                                    <div class="col-auto"><label class="col-form-label col-form-label-sm">Eau Min (%) :</label></div>
+                                    <div class="col"><input type="number" id="input-water-min" class="form-control form-control-sm" value="20"></div>
+                                </div>
+                                <div class="row g-2 align-items-center">
+                                    <div class="col-auto"><label class="col-form-label col-form-label-sm">Temp Max (°C):</label></div>
+                                    <div class="col"><input type="number" id="input-temp-max" class="form-control form-control-sm" value="45"></div>
+                                    <div class="col-auto"><button type="submit" class="btn btn-sm btn-primary">Appliquer</button></div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chart -->
+            <div class="col-lg-8">
+                <div class="chart-container">
+                    <canvas id="historyChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+
+    <script>
+        // --- Variables & Elements ---
+        let currentMode = "auto";
+        let isPumpOn = false;
+        
+        const elStatusInd = document.getElementById('nexus-status-indicator');
+        const elLastUpdate = document.getElementById('last-update');
+        const elConnStatus = document.getElementById('connection-status');
+        const elReasons = document.getElementById('nexus-reasons');
+        
+        const btnAuto = document.getElementById('mode-auto');
+        const btnManual = document.getElementById('mode-manual');
+        const btnPump = document.getElementById('btn-pump-toggle');
+        const iconPump = document.querySelector('#pump-status-icon i');
+        const textPump = document.getElementById('pump-status-text');
+
+        // Chart Setup
+        const ctx = document.getElementById('historyChart').getContext('2d');
+        Chart.defaults.color = '#adb5bd';
+        Chart.defaults.borderColor = 'rgba(255,255,255,0.1)';
+        
+        const historyChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [
+                    {
+                        label: 'Humidité Sol (%)',
+                        borderColor: '#198754',
+                        backgroundColor: 'rgba(25, 135, 84, 0.1)',
+                        data: [],
+                        yAxisID: 'y',
+                        fill: true,
+                        tension: 0.3
+                    },
+                    {
+                        label: 'Niveau Eau (%)',
+                        borderColor: '#0dcaf0',
+                        backgroundColor: 'rgba(13, 202, 240, 0.1)',
+                        data: [],
+                        yAxisID: 'y',
+                        fill: true,
+                        tension: 0.3
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                plugins: {
+                    title: { display: true, text: 'Historique (30 min)', color: '#fff' },
+                    legend: { position: 'bottom' }
+                },
+                scales: {
+                    x: { ticks: { maxTicksLimit: 10 } },
+                    y: { type: 'linear', display: true, position: 'left', min: 0, max: 100 }
+                }
+            }
+        });
+
+        // --- WebSocket Setup ---
+        const socket = io();
+
+        socket.on('connect', () => {
+            elConnStatus.innerHTML = '<i class="fa-solid fa-circle text-success me-1"></i> Connecté';
+            elConnStatus.className = 'badge bg-dark border border-success';
+            socket.emit('request_history');
+        });
+
+        socket.on('disconnect', () => {
+            elConnStatus.innerHTML = '<i class="fa-solid fa-circle text-danger me-1"></i> Déconnecté';
+            elConnStatus.className = 'badge bg-dark border border-danger';
+        });
+
+        socket.on('sensor_update', (data) => {
+            updateDashboard(data);
+        });
+
+        socket.on('history_update', (history) => {
+            updateChart(history);
+        });
+
+        // --- UI Updates ---
+        function updateDashboard(data) {
+            // Update timestamp
+            if(data.timestamp) {
+                elLastUpdate.innerText = moment(data.timestamp).format('HH:mm:ss');
+            }
+
+            // Update Cards (handle None/null values)
+            const fmt = (v) => v !== null && v !== undefined ? v : '--';
+            
+            // Soil
+            document.getElementById('val-soil').innerHTML = `${fmt(data.soil_humidity)} <span class="fs-4">%</span>`;
+            if(data.soil_humidity !== null) {
+                document.getElementById('prog-soil').style.width = `${data.soil_humidity}%`;
+            }
+
+            // Water
+            document.getElementById('val-water-pct').innerHTML = `${fmt(data.water_pct)} <span class="fs-4">%</span>`;
+            document.getElementById('val-water-cm').innerText = fmt(data.water_level_cm);
+            if(data.water_pct !== null) {
+                const waterProg = document.getElementById('prog-water');
+                waterProg.style.width = `${data.water_pct}%`;
+                waterProg.className = `progress-bar ${data.water_pct < 20 ? 'bg-danger' : (data.water_pct < 40 ? 'bg-warning' : 'bg-info')}`;
+            }
+
+            // Temp
+            document.getElementById('val-temp').innerHTML = `${fmt(data.temperature)} <span class="fs-4">°C</span>`;
+            document.getElementById('val-hum').innerText = fmt(data.humidity_air);
+            if(data.temperature !== null) {
+                const tempProg = document.getElementById('prog-temp');
+                let tPct = Math.min(100, Math.max(0, (data.temperature / 60) * 100));
+                tempProg.style.width = `${tPct}%`;
+                tempProg.className = `progress-bar ${data.temperature > 45 ? 'bg-danger' : (data.temperature > 38 ? 'bg-warning' : 'bg-warning')}`;
+            }
+
+            // Nexus Status Indicator
+            elStatusInd.className = 'status-indicator ' + 
+                (data.nexus_status === 'ALERT' ? 'status-alert' : 
+                 (data.nexus_status === 'WARN' ? 'status-warn' : 'status-ok'));
+
+            // Reasons List
+            if(data.nexus_reasons && data.nexus_reasons.length > 0) {
+                elReasons.innerHTML = data.nexus_reasons.map(r => `<li>${r}</li>`).join('');
+            } else {
+                elReasons.innerHTML = '<li class="text-muted fst-italic">Analyse en cours...</li>';
+            }
+
+            // Mode & Pump
+            currentMode = data.mode || "auto";
+            isPumpOn = data.pump || false;
+
+            if (currentMode === "auto") {
+                btnAuto.checked = true;
+                btnPump.classList.add('disabled');
+                btnPump.classList.remove('btn-success', 'btn-danger');
+                btnPump.classList.add('btn-outline-light');
+            } else {
+                btnManual.checked = true;
+                btnPump.classList.remove('disabled');
+                if (isPumpOn) {
+                    btnPump.classList.remove('btn-outline-light', 'btn-success');
+                    btnPump.classList.add('btn-danger');
+                    btnPump.innerText = "ARRÊTER LA POMPE";
+                } else {
+                    btnPump.classList.remove('btn-outline-light', 'btn-danger');
+                    btnPump.classList.add('btn-success');
+                    btnPump.innerText = "DÉMARRER LA POMPE";
+                }
+            }
+
+            // Pump Visuals
+            if (isPumpOn) {
+                iconPump.style.color = '#198754';
+                textPump.innerText = 'EN MARCHE';
+                textPump.className = 'text-success mb-4';
+            } else {
+                iconPump.style.color = '#dc3545';
+                textPump.innerText = 'ARRÊTÉE';
+                textPump.className = 'text-danger mb-4';
+            }
+        }
+
+        function updateChart(history) {
+            if (!history || history.length === 0) return;
+            
+            const labels = [];
+            const soilData = [];
+            const waterData = [];
+
+            history.forEach(pt => {
+                labels.push(moment(pt.ts).format('HH:mm:ss'));
+                soilData.push(pt.soil_humidity);
+                waterData.push(pt.water_pct);
+            });
+
+            historyChart.data.labels = labels;
+            historyChart.data.datasets[0].data = soilData;
+            historyChart.data.datasets[1].data = waterData;
+            historyChart.update('none'); // Update without animation for performance
+        }
+
+        // --- User Actions ---
+        
+        // Mode switch
+        btnAuto.addEventListener('change', () => {
+            fetch('/api/mode', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ mode: 'auto' })
+            });
+        });
+
+        btnManual.addEventListener('change', () => {
+            fetch('/api/mode', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ mode: 'manual' })
+            });
+        });
+
+        // Pump Toggle
+        btnPump.addEventListener('click', () => {
+            if (currentMode === "auto") return;
+            // Optimistic UI update
+            btnPump.disabled = true;
+            
+            socket.emit('pump_control', { 
+                action: 'toggle', 
+                mode: 'manual' 
+            });
+            
+            setTimeout(() => { btnPump.disabled = false; }, 1000);
+        });
+
+        // Thresholds Form
+        document.getElementById('form-thresholds').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const soilDry = document.getElementById('input-soil-dry').value;
+            const waterMin = document.getElementById('input-water-min').value;
+            const tempMax = document.getElementById('input-temp-max').value;
+
+            fetch('/api/thresholds', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    soil_dry: soilDry,
+                    water_min: waterMin,
+                    temp_max: tempMax
+                })
+            }).then(res => res.json()).then(data => {
+                if(data.ok) {
+                    if(data.updated.soil_dry) document.getElementById('thresh-soil-dry').innerText = data.updated.soil_dry;
+                    if(data.updated.water_min) document.getElementById('thresh-water-min').innerText = data.updated.water_min;
+                    if(data.updated.temp_max) document.getElementById('thresh-temp-max').innerText = data.updated.temp_max;
+                    
+                    // Flash success
+                    const btn = e.target.querySelector('button');
+                    const origText = btn.innerText;
+                    btn.innerText = "OK ✓";
+                    btn.classList.replace('btn-primary', 'btn-success');
+                    setTimeout(() => {
+                        btn.innerText = origText;
+                        btn.classList.replace('btn-success', 'btn-primary');
+                    }, 2000);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
