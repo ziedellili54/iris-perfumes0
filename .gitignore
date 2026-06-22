@@ -1,0 +1,29 @@
+# Python scripts (dev tools, not part of the website)
+*.py
+__pycache__/
+*.pyc
+
+# Test & dev files
+load_report.html
+index_test.txt
+temp_check.js
+*.lnk
+
+# Old/backup HTML versions
+"index (1).html"
+index2.html
+css.html
+
+# VS Code settings
+.vscode/
+
+# Agent files
+.agent.md
+
+# OS files
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# Zip archives from Google Drive
+*-001/
