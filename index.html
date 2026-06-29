@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-  <title>Iris Perfumes – Parfums de Luxe en Tunisie</title>
+  <title>Iris Perfumes – Décantage des parfums authentiques</title>
   <meta name="description"
     content="Iris Perfumes – Décants et parfums originaux livrés partout en Tunisie. Par Zied Ellili." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -3394,8 +3394,8 @@
           <div class="carousel-slide active">
             <img src="dua_lipa.JPG" alt="Dua Lipa">
             <div class="carousel-content pos-bottom">
-              <div class="htag">Décantage de Luxe</div>
-              <h1 class="htitle"><span class="gr">Parfum de Luxe</span></h1>
+              <div class="htag">Décantage des parfums authentiques</div>
+              <h1 class="htitle"><span class="gr">Décantage des Parfums Authentiques</span></h1>
               <div class="hbtns">
                 <button onclick="showCollection('all')" class="bp">Découvrir la collection</button>
               </div>
@@ -3407,9 +3407,6 @@
             <div class="carousel-content pos-bottom">
               <div class="htag">Collection Iris</div>
               <h1 class="htitle"><span class="gr">L'Essence du Raffinement</span></h1>
-              <div class="hbtns">
-                <button onclick="showCollection('all')" class="bp">Parcourir le catalogue</button>
-              </div>
             </div>
           </div>
           <div class="carousel-slide">
@@ -3946,14 +3943,6 @@
                 </div>
                 <div style="grid-column: 2 / span 1;">
                   <label
-                    style="font-size: 0.9rem; font-weight: 600; color: #475569; display: block; margin-bottom: 0.6rem;">Délégation
-                    <span style="color: #ef4444;">*</span></label>
-                  <input id="co_delegation" name="delegation" type="text" placeholder="Délégation" required
-                    style="width: 100%; padding: 0.9rem 1.2rem; border: 1.5px solid #e2e8f0; border-radius: 10px; font-size: 1rem; outline: none; transition: border-color 0.2s;"
-                    onfocus="this.style.borderColor='var(--p1)'" onblur="this.style.borderColor='#e2e8f0'">
-                </div>
-                <div style="grid-column: 1 / span 1;">
-                  <label
                     style="font-size: 0.9rem; font-weight: 600; color: #475569; display: block; margin-bottom: 0.6rem;">Gouvernerat
                     <span style="color: #ef4444;">*</span></label>
                   <select id="co_gov" name="gouvernerat" required
@@ -3985,14 +3974,6 @@
                     <option>Tunis</option>
                     <option>Zaghouan</option>
                   </select>
-                </div>
-                <div style="grid-column: 2 / span 1;">
-                  <label
-                    style="font-size: 0.9rem; font-weight: 600; color: #475569; display: block; margin-bottom: 0.6rem;">Code
-                    postal</label>
-                  <input id="co_postal" name="postal" type="text" placeholder="Code postal"
-                    style="width: 100%; padding: 0.9rem 1.2rem; border: 1.5px solid #e2e8f0; border-radius: 10px; font-size: 1rem; outline: none; transition: border-color 0.2s;"
-                    onfocus="this.style.borderColor='var(--p1)'" onblur="this.style.borderColor='#e2e8f0'">
                 </div>
               </div>
             </div>
@@ -4633,6 +4614,19 @@
       const qtyInput = document.getElementById('m_qty') || document.getElementById('pp_qty');
       const qty = qtyInput ? (parseInt(qtyInput.value) || 1) : 1;
       let cart = JSON.parse(localStorage.getItem('iris_cart') || '[]');
+      
+      // Calculate total volume after addition
+      let currentVol = 0;
+      cart.forEach(i => {
+        let szVal = i.size === 'full' ? 30 : (Number(i.size) || 5);
+        currentVol += szVal * i.qty;
+      });
+      let newSzVal = sz === 'full' ? 30 : (Number(sz) || 5);
+      if (currentVol + (newSzVal * qty) > 30) {
+        alert("La quantité totale maximale autorisée dans le panier est de 30ml.");
+        return;
+      }
+
       const existing = cart.find(i => i.id === id && (i.size || 5) == sz);
       if (existing) existing.qty += qty;
       else cart.push({ id: id, qty: qty, size: sz });
@@ -4658,6 +4652,19 @@
       const qtyInput = document.getElementById('m_qty') || document.getElementById('pp_qty');
       const qty = parseInt((qtyInput && qtyInput.value) || 1);
       let cart = JSON.parse(localStorage.getItem('iris_cart') || '[]');
+      
+      // Calculate total volume after addition
+      let currentVol = 0;
+      cart.forEach(i => {
+        let szVal = i.size === 'full' ? 30 : (Number(i.size) || 5);
+        currentVol += szVal * i.qty;
+      });
+      let newSzVal = sz === 'full' ? 30 : (Number(sz) || 5);
+      if (currentVol + (newSzVal * qty) > 30) {
+        alert("La quantité totale maximale autorisée dans le panier est de 30ml.");
+        return;
+      }
+
       const existing = cart.find(i => i.id === id && (i.size || 5) == sz);
       if (existing) existing.qty += qty;
       else cart.push({ id: id, qty: qty, size: sz });
@@ -4719,9 +4726,9 @@
         if (obj.name) document.getElementById('co_name').value = obj.name;
         if (obj.phone) document.getElementById('co_phone').value = obj.phone;
         if (obj.address) document.getElementById('co_address').value = obj.address;
-        if (obj.delegation) document.getElementById('co_delegation').value = obj.delegation;
+        if (document.getElementById('co_delegation') && obj.delegation) document.getElementById('co_delegation').value = obj.delegation;
         if (obj.gov) document.getElementById('co_gov').value = obj.gov;
-        if (obj.postal) document.getElementById('co_postal').value = obj.postal;
+        if (document.getElementById('co_postal') && obj.postal) document.getElementById('co_postal').value = obj.postal;
         if (obj.comment) document.getElementById('co_comment').value = obj.comment || '';
         if (obj.paymentMethod) {
           const r = document.querySelector('input[name="co_payment"][value="' + obj.paymentMethod + '"]');
@@ -4801,9 +4808,9 @@
       const name = document.getElementById('co_name').value;
       const phone = document.getElementById('co_phone').value;
       const address = document.getElementById('co_address').value;
-      const delegation = document.getElementById('co_delegation').value;
+      const delegation = document.getElementById('co_delegation') ? document.getElementById('co_delegation').value : '';
       const gov = document.getElementById('co_gov').value;
-      const postal = document.getElementById('co_postal').value || 'Non fourni';
+      const postal = document.getElementById('co_postal') ? document.getElementById('co_postal').value : '';
       const comment = document.getElementById('co_comment').value || 'Aucun';
       const paymentMethod = document.querySelector('input[name="co_payment"]:checked')?.value || 'cod';
 
@@ -4851,9 +4858,7 @@ WhatsApp  : ${waLink}
 
 == LIVRAISON ==
 Adresse   : ${address}
-Delegation: ${delegation}
 Gouvernorat: ${gov}
-Code postal: ${postal}
 ${comment !== 'Aucun' ? 'Commentaire: ' + comment + '\n' : ''}
 == ARTICLES COMMANDES ==
 ${itemLines}
@@ -4876,7 +4881,7 @@ Paiement   : ${payLabel}`;
         paid = true;
       }
 
-      const orderObj = { id: Date.now(), date: new Date().toLocaleString('fr-TN'), name, phone, address, delegation, gov, postal, comment, email: orderEmail, items: cart.map(i => { const p = PERFS.find(x => x.id === i.id); return { brand: p?.brand, name: p?.name, size: i.size, qty: i.qty, price: getPriceForSize(p, i.size || 5) }; }), subtotal, total, paymentMethod, paid, status: paid ? 'paid' : 'new' };
+      const orderObj = { id: Date.now(), date: new Date().toLocaleString('fr-TN'), name, phone, address, gov, comment, email: orderEmail, items: cart.map(i => { const p = PERFS.find(x => x.id === i.id); return { brand: p?.brand, name: p?.name, size: i.size, qty: i.qty, price: getPriceForSize(p, i.size || 5) }; }), subtotal, total, paymentMethod, paid, status: paid ? 'paid' : 'new' };
       orders.unshift(orderObj);
       localStorage.setItem('iris_orders', JSON.stringify(orders));
 
@@ -5449,6 +5454,21 @@ Paiement   : ${payLabel}`;
       const item = cart.find(i => i.id === id && (i.size || 5) == size);
       if (!item) return;
 
+      // Calculate total volume after change
+      let currentVol = 0;
+      cart.forEach(i => {
+        let szVal = i.size === 'full' ? 30 : (Number(i.size) || 5);
+        currentVol += szVal * i.qty;
+      });
+
+      if (delta > 0) {
+        let szVal = size === 'full' ? 30 : (Number(size) || 5);
+        if (currentVol + (szVal * delta) > 30) {
+          alert("La quantité totale maximale autorisée dans le panier est de 30ml.");
+          return;
+        }
+      }
+
       // Limit 30ml items to quantity 1
       if (size == 30 && delta > 0) {
         alert("Vous ne pouvez commander qu'un seul flacon de 30ml.");
@@ -5721,7 +5741,7 @@ Paiement   : ${payLabel}`;
           <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px">
             <button onclick="(function(){const el=document.getElementById('pp_qty');el.value=Math.max(1,parseInt(el.value||1)-1)})()">-</button>
             <input id="pp_qty" type="number" min="1" value="1" style="width:72px;padding:6px;border-radius:8px;border:1px solid #e5e7eb" />
-            <button onclick="(function(){const el=document.getElementById('pp_qty');el.value=parseInt(el.value||1)+1})()">+</button>
+            <button onclick="(function(){const el=document.getElementById('pp_qty');let qty=parseInt(el.value||1)+1;let cart=JSON.parse(localStorage.getItem('iris_cart')||'[]');let currentVol=0;cart.forEach(i=>{let szVal=i.size==='full'?30:(Number(i.size)||5);currentVol+=szVal*i.qty;});let sz=cSizes[${p.id}]||5;let newSzVal=sz==='full'?30:(Number(sz)||5);if(currentVol+(newSzVal*qty)>30){alert('La quantité totale maximale autorisée dans le panier est de 30ml.');return;}el.value=qty;})()">+</button>
             <button class="m-btn-pri" style="margin-left:auto" onclick="addToCartQty(${p.id})">Ajouter au panier</button>
           </div>
           <div><button class="m-btn-pri" style="width:100%" onclick="buyNowCheckout(${p.id})">Commander maintenant</button></div>
@@ -5843,7 +5863,7 @@ Paiement   : ${payLabel}`;
         localStorage.setItem('iris_cart', JSON.stringify(cart));
         updateNav();
         // Prefill checkout and open it
-        const prefill = { name, email, phone, address, delegation, gov, postal, comment, paymentMethod };
+        const prefill = { name, email, phone, address, gov, comment, paymentMethod };
         sessionStorage.setItem('iris_prefill', JSON.stringify(prefill));
         openCheckout();
       };
@@ -6020,7 +6040,7 @@ Paiement   : ${payLabel}`;
           </div>
           <div style="font-size:0.95rem; margin-bottom:1rem;">
             <strong>Client:</strong> ${o.name} (${o.phone})<br>
-            <strong>Adresse:</strong> ${o.address}, ${o.delegation}, ${o.gov}
+            <strong>Adresse:</strong> ${o.address}, ${o.gov}
           </div>
           <div style="background:#fff; padding:1rem; border-radius:12px; font-size:0.9rem; border:1px solid #f1f5f9;">
             ${o.items.map(i => `• ${i.brand} ${i.name} (${i.size}) x${i.qty}`).join('<br>')}
