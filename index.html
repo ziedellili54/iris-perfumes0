@@ -1166,15 +1166,15 @@
 
     .fi {
       display: flex;
+      flex-direction: column;
       align-items: center;
-      gap: 1rem
+      text-align: center;
+      gap: 0.6rem
     }
 
     .fic {
       width: 46px;
       height: 46px;
-      background: var(--g);
-      border-radius: 13px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -3366,8 +3366,6 @@
           <div class="search-suggestions" id="searchSuggestions"></div>
         </div>
         <div class="nav-icons">
-          <button class="icon-btn" title="Authenticité"><img src="Icons-20260419T113231Z-3-001/Icons/IMG_5154.PNG"
-              alt="Authenticité" style="filter: invert(1);" /></button>
           <button class="icon-btn" id="loginBtn" onclick="openLogin()" title="Connexion"><span
               style="font-size:1.2rem;line-height:1;">👤</span></button>
           <button class="icon-btn" id="wishlistNav" title="Wishlist" style="position:relative">❤<span class="cart-badge"
@@ -3439,6 +3437,45 @@
         </div>
       </div>
 
+
+      <!-- COLLECTION BANNERS -->
+      <div class="collection-banners">
+        <div class="banner-box" onclick="showCollection('homme')">
+          <img src="page_d_acc_photos/Pour_Homme/att.io3hHvCUSNCpBZRKdhBiIQ848BQjHsZgD-dsO5xcX9Y.jpg"
+            alt="Collection Homme" loading="lazy">
+          <div class="banner-overlay">
+            <div class="btitle">Collection Parfum<br>Pour Homme</div>
+          </div>
+          <div class="btag">POUR LUI</div>
+        </div>
+        <div class="banner-box" onclick="showCollection('femme')">
+          <img src="page_d_acc_photos/Pour_Femme/att.zrHoUcCgeLGqf8qByuU4dv9l0EsJrMngcEBdbi2_TT4.jpg"
+            alt="Collection Femme" loading="lazy">
+          <div class="banner-overlay">
+            <div class="btitle">Collection Parfum<br>Pour Femme</div>
+          </div>
+          <div class="btag">POUR ELLE</div>
+        </div>
+        <div class="banner-box" onclick="showCollection('niche')">
+          <img src="page_d_acc_photos/Parfum_de_niche/07fd7486-5142-43e4-9b32-43071dba6c81.jpg" alt="Collection Niche"
+            loading="lazy">
+          <div class="banner-overlay">
+            <div class="btitle">Parfums<br>De Niche</div>
+          </div>
+          <div class="btag">EXCLUSIF</div>
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr; gap: 1.5rem;">
+          <div class="banner-box"
+            style="height:120px; background:linear-gradient(45deg, var(--p1), var(--p2)); justify-content:center; text-align:center;"
+            onclick="showCollection('new')">
+            <div class="banner-overlay"
+              style="width:100%; color:#fff; align-items:center; padding:0; background:transparent !important;">
+              <div class="btitle" style="font-size:1.8rem; color:#fff; margin:0;">Nouveautés ✨</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- FEATURES -->
       <div class="feats">
         <div class="fg">
@@ -3459,55 +3496,21 @@
             </div>
           </div>
           <div class="fi">
-            <div class="fic"></div>
+            <div class="fic">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--p1)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg>
+            </div>
             <div>
               <div class="fit">Cash à livraison</div>
               <div class="fid">Paiement à la réception</div>
             </div>
           </div>
           <div class="fi">
-            <div class="fic"></div>
+            <div class="fic">
+              <img src="Icons-20260419T113231Z-3-001/Icons/IMG_5158.PNG" style="width:32px;height:32px;object-fit:contain" />
+            </div>
             <div>
               <div class="fit">Support WhatsApp</div>
               <div class="fid">Disponible 7j/7</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- COLLECTION BANNERS -->
-      <div class="collection-banners">
-        <div class="banner-box" onclick="showCollection('homme')">
-          <img src="page_d_acc_photos/Pour_Homme/att.io3hHvCUSNCpBZRKdhBiIQ848BQjHsZgD-dsO5xcX9Y.jpg"
-            alt="Collection Homme" loading="lazy">
-          <div class="banner-overlay">
-            <div class="btitle">Collection Parfum<br>Pour_Hommes</div>
-          </div>
-          <div class="btag">POUR LUI</div>
-        </div>
-        <div class="banner-box" onclick="showCollection('femme')">
-          <img src="page_d_acc_photos/Pour_Femme/att.zrHoUcCgeLGqf8qByuU4dv9l0EsJrMngcEBdbi2_TT4.jpg"
-            alt="Collection Femme" loading="lazy">
-          <div class="banner-overlay">
-            <div class="btitle">Collection Parfum<br>Pour_Femmes</div>
-          </div>
-          <div class="btag">POUR ELLE</div>
-        </div>
-        <div class="banner-box" onclick="showCollection('niche')">
-          <img src="page_d_acc_photos/Parfum_de_niche/07fd7486-5142-43e4-9b32-43071dba6c81.jpg" alt="Collection Niche"
-            loading="lazy">
-          <div class="banner-overlay">
-            <div class="btitle">Parfums<br>De Niche</div>
-          </div>
-          <div class="btag">EXCLUSIF</div>
-        </div>
-        <div style="display:grid; grid-template-columns: 1fr; gap: 1.5rem;">
-          <div class="banner-box"
-            style="height:120px; background:linear-gradient(45deg, var(--p1), var(--p2)); justify-content:center; text-align:center;"
-            onclick="showCollection('new')">
-            <div class="banner-overlay"
-              style="width:100%; color:#fff; align-items:center; padding:0; background:transparent !important;">
-              <div class="btitle" style="font-size:1.8rem; color:#fff; margin:0;">Nouveautés ✨</div>
             </div>
           </div>
         </div>
