@@ -3113,6 +3113,20 @@
     }
 
     /* ===== MOBILE IMPROVEMENTS ===== */
+    @media (max-width: 768px) {
+      .logo-t {
+        display: none !important;
+      }
+      .logo {
+        gap: 0 !important;
+      }
+      .ni {
+        height: 70px !important;
+      }
+      .top-carousel {
+        height: 380px !important;
+      }
+    }
     @media (max-width: 600px) {
       #login-modal-box {
         margin: 1rem;
@@ -3126,7 +3140,7 @@
       }
 
       .search-container {
-        max-width: 140px;
+        max-width: 120px !important;
       }
 
       .ud-container {
@@ -3389,8 +3403,8 @@
         <a href="javascript:void(0)" onclick="showCollection('femme');closeM2()" class="cat-link">FEMME</a>
         <a href="javascript:void(0)" onclick="showCollection('niche');closeM2()" class="cat-link">NICHE</a>
         <div style="height:1px;background:#eee;margin:1rem 0"></div>
-        <a href="#avis" onclick="closeM2()" style="font-size:1.5rem">Avis Clients</a>
-        <a href="#contact" onclick="closeM2()" style="font-size:1.5rem">Contact</a>
+        <a href="javascript:void(0)" onclick="scrollToSection('avis');closeM2()" style="font-size:1.5rem">Avis Clients</a>
+        <a href="javascript:void(0)" onclick="scrollToSection('contact');closeM2()" style="font-size:1.5rem">Contact</a>
       </div>
     </div>
 
@@ -3412,7 +3426,6 @@
               alt="Collection Iris">
             <div class="carousel-content pos-bottom">
               <div class="htag">Collection Iris</div>
-              <h1 class="htitle"><span class="gr">L'Essence du Raffinement</span></h1>
             </div>
           </div>
           <div class="carousel-slide">
@@ -3423,7 +3436,7 @@
               <div class="htag">Qualité Irréprochable</div>
               <h1 class="htitle"><span class="gr">Décantage de Précision</span></h1>
               <div class="hbtns">
-                <a href="#comment" class="bs">Comment ça marche ?</a>
+                 <a href="javascript:void(0)" onclick="scrollToSection('comment')" class="bs">Comment ça marche ?</a>
               </div>
             </div>
           </div>
@@ -3800,15 +3813,15 @@
               <li><a href="#produits">Tous les parfums</a></li>
               <li><a href="#produits">Pour Lui</a></li>
               <li><a href="#produits">Pour Elle</a></li>
-              <li><a href="#contact">Contactez-nous</a></li>
+              <li><a href="javascript:void(0)" onclick="scrollToSection('contact')">Contactez-nous</a></li>
             </ul>
           </div>
           <div class="fcol">
             <h4>Informations</h4>
             <ul>
-              <li><a href="#comment">Comment commander</a></li>
-              <li><a href="#avis">Avis clients</a></li>
-              <li><a href="#contact">Contact</a></li>
+              <li><a href="javascript:void(0)" onclick="scrollToSection('comment')">Comment commander</a></li>
+              <li><a href="javascript:void(0)" onclick="scrollToSection('avis')">Avis clients</a></li>
+              <li><a href="javascript:void(0)" onclick="scrollToSection('contact')">Contact</a></li>
               <li><a href="mailto:irisperfumes2025@gmail.com">irisperfumes2025@gmail.com</a></li>
             </ul>
           </div>
@@ -4322,6 +4335,14 @@
     window.alert = function (msg) {
       showToast(msg);
     };
+
+    function scrollToSection(id) {
+      goHome();
+      setTimeout(() => {
+        const el = document.getElementById(id);
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+      }, 150);
+    }
     const PERFS = [
       { id: 1, brand: "Boss", name: "Bottled Absolu", type: "Eau de Parfum", genre: "homme", prices: { 5: 27, 10: 50, 15: 65, 20: 100, 30: 150, full: 150 }, top: "Lavande, Bergamote", heart: "Cèdre, Bois de Gaïac", base: "Vanille, Benjoin", desc: "Boisé, intense et sophistiqué — Bottled Absolu incarne la nouvelle signature masculine de Boss.", badge: "Best-seller", stock: "dispo", c1: "#0f172a", c2: "#f97316", img: "Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Boss_bottled_absolu/Background.webp", gallery: ["Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Boss_bottled_absolu/Background.webp", "Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Boss_bottled_absolu/IMG_5088.JPG", "Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Boss_bottled_absolu/IMG_5089.JPG"] },
       { id: 2, brand: "Jean Paul Gaultier", name: "Le Beau Le Parfum", type: "Eau de Parfum", genre: "homme", prices: { 5: 27, 10: 50, 15: 70, 20: 100, 30: 150, full: 150 }, top: "Lavande, Orange", heart: "Fleur d’Oranger", base: "Vanille, Cèdre", desc: "Un parfum sensuel et boisé qui révèle la force douce d'un homme moderne.", badge: "Nouveau", stock: "dispo", c1: "#1f2937", c2: "#ea580c", img: "Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Jean_paul_gaultier_le_beau_le_parfum/Background_.webp", gallery: ["Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Jean_paul_gaultier_le_beau_le_parfum/Background_.webp", "Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Jean_paul_gaultier_le_beau_le_parfum/IMG_5100.webp", "Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Jean_paul_gaultier_le_beau_le_parfum/IMG_5101.webp", "Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Jean_paul_gaultier_le_beau_le_parfum/IMG_5152.JPG"] },
