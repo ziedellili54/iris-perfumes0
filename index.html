@@ -456,7 +456,7 @@
       }
     }
 
-    .logo-t {
+    .logo-text {
       font-family: var(--serif);
       font-size: 1.6rem;
       font-weight: 800;
@@ -465,7 +465,7 @@
       line-height: 1
     }
 
-    .logo-t span {
+    .logo-text span {
       display: block;
       font-size: .6rem;
       font-family: var(--sans);
@@ -3203,6 +3203,9 @@
 
     /* ===== MOBILE IMPROVEMENTS ===== */
     @media (max-width: 768px) {
+      .logo-text {
+        font-size: 1.25rem; /* Slightly scale down to fit iPhone screens without breaking grid */
+      }
       .logo {
         gap: 8px !important;
       }
@@ -3453,7 +3456,7 @@
         <div class="logo-ico">
           <img src="logo/iris_logo_fini_3.webp" alt="Iris Perfumes logo" loading="lazy" />
         </div>
-        <div class="logo-t">irisperfumes.tn<span>Since 2025</span></div>
+        <div class="logo-text" style="display: block !important;">irisperfumes.tn<span>Since 2025</span></div>
       </a>
 
       <!-- TOP RIGHT: Icons -->
