@@ -2982,61 +2982,123 @@
       box-shadow: 0 10px 30px rgba(0,0,0,0.15);
       display: none;
     }
-    .search-suggestions {
-      /* kept for desktop compat – hidden on mobile via overlay */
-      position: absolute;
-      top: 100%;
-      left: 0;
-      right: 0;
+
+    /* ===== DESKTOP SEARCH — modern ===== */
+    .search-container {
+      position: relative;
+      margin-right: 0.5rem;
+    }
+
+    .search-input {
+      background: rgba(255,255,255,0.08);
+      border: 1.5px solid rgba(255,255,255,0.15);
+      padding: 0.55rem 1.1rem 0.55rem 2.6rem;
+      border-radius: 99px;
+      font-family: var(--sans);
+      font-size: 0.84rem;
+      width: 220px;
+      transition: width 0.35s cubic-bezier(.4,0,.2,1), background 0.25s, border-color 0.25s, box-shadow 0.25s;
+      color: #fff;
+      letter-spacing: 0.01em;
+    }
+
+    .search-input::placeholder {
+      color: rgba(255,255,255,0.45);
+      font-size: 0.82rem;
+    }
+
+    .search-input:focus {
+      width: 300px;
       background: #fff;
-      border-radius: 12px;
-      margin-top: 8px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-      border: 1px solid rgba(0, 0, 0, 0.05);
+      border-color: var(--p1);
+      box-shadow: 0 0 0 4px rgba(108,63,197,0.12), 0 4px 20px rgba(108,63,197,0.15);
+      outline: none;
+      color: #0f172a;
+    }
+
+    .search-input:focus::placeholder { color: #94a3b8; }
+
+    .search-icon {
+      position: absolute;
+      left: 11px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.55);
+      pointer-events: none;
+      transition: color 0.25s;
+    }
+
+    .search-container:focus-within .search-icon { color: var(--p1); }
+
+    .search-suggestions {
+      position: absolute;
+      top: calc(100% + 10px);
+      right: 0;
+      width: 340px;
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.14), 0 4px 16px rgba(108,63,197,0.08);
+      border: 1px solid rgba(108,63,197,0.08);
       z-index: 3000;
       display: none;
       overflow: hidden;
+      animation: suggFadeIn 0.18s ease;
+    }
+
+    @keyframes suggFadeIn {
+      from { opacity: 0; transform: translateY(-6px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
 
     .suggestion-item {
       display: flex;
       align-items: center;
-      gap: 12px;
-      padding: 10px 15px;
+      gap: 14px;
+      padding: 11px 16px;
       cursor: pointer;
-      transition: background 0.2s;
-      border-bottom: 1px solid #f9fafb;
+      transition: background 0.15s;
+      border-bottom: 1px solid #f1f5f9;
+      text-decoration: none;
     }
 
-    .suggestion-item:last-child {
-      border-bottom: none;
-    }
-
-    .suggestion-item:hover {
-      background: #f5f3ff;
-    }
+    .suggestion-item:last-child { border-bottom: none; }
+    .suggestion-item:hover { background: #f5f3ff; }
 
     .suggestion-img {
-      width: 40px;
-      height: 40px;
-      object-fit: contain;
-      background: #f9fafb;
-      border-radius: 6px;
+      width: 46px;
+      height: 46px;
+      object-fit: cover;
+      background: #f8fafc;
+      border-radius: 10px;
+      flex-shrink: 0;
+      border: 1px solid #e2e8f0;
     }
 
-    .suggestion-info {
-      flex: 1;
-    }
+    .suggestion-info { flex: 1; min-width: 0; }
 
     .suggestion-name {
       font-weight: 700;
-      font-size: 0.85rem;
-      color: var(--text);
+      font-size: 0.88rem;
+      color: #0f172a;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    .suggestion-brand {
-      font-size: 0.75rem;
-      color: var(--gray);
+    .suggestion-brand { font-size: 0.76rem; color: #64748b; margin-top: 2px; }
+
+    .suggestion-badge {
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 99px;
+      background: var(--plight);
+      color: var(--p1);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
 
     .promo-banner {
@@ -5267,7 +5329,7 @@ Paiement   : ${payLabel}`;
 
       if (matches.length > 0) {
         suggestions.innerHTML = matches.map(p => {
-          const price = getPriceForSize(p, 5);
+          const genreLabel = p.genre === 'homme' ? 'Homme' : p.genre === 'femme' ? 'Femme' : 'Niche';
           return `
             <div class="suggestion-item" onclick="selectSuggestion(${p.id})">
               <img src="${p.img}" class="suggestion-img">
@@ -5275,6 +5337,7 @@ Paiement   : ${payLabel}`;
                 <div class="suggestion-name">${p.name}</div>
                 <div class="suggestion-brand">${p.brand}</div>
               </div>
+              <span class="suggestion-badge">${genreLabel}</span>
             </div>
           `;
         }).join('');
