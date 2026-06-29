@@ -700,7 +700,7 @@
       position: fixed;
       inset: 0;
       background: rgba(255, 255, 255, .98);
-      z-index: 2000;
+      z-index: 3000;
       display: none;
       flex-direction: column;
       padding: 3rem 2rem;
@@ -1385,17 +1385,16 @@
       position: absolute;
       bottom: 20px;
       left: 50%;
-      transform: translateX(-50%) translateY(20px);
+      transform: translateX(-50%) translateY(0);
       display: flex;
       gap: 12px;
-      opacity: 0;
+      opacity: 1;
       transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
       z-index: 5
     }
 
     .pc:hover .card-actions {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0)
+      transform: translateX(-50%) translateY(-5px);
     }
 
     .btn-circle {
@@ -2981,6 +2980,8 @@
       overflow: hidden;
       box-shadow: 0 10px 30px rgba(0,0,0,0.15);
       display: none;
+      width: 90%;
+      max-width: 600px;
     }
 
     /* ===== DESKTOP SEARCH — modern ===== */
@@ -3437,10 +3438,27 @@
     <div class="float-el" style="left:70%;animation-delay:12s"></div>
     <div class="float-el" style="left:80%;animation-delay:14s"></div>
     <div class="float-el" style="left:90%;animation-delay:16s"></div>
+   <!-- PROMO BANNER -->
+  <div class="promo-banner" style="overflow: hidden; white-space: nowrap; display: flex; width: 100%;">
+    <div style="display: flex; flex-shrink: 0; animation: marquee-scroll 25s linear infinite; white-space: nowrap;">
+      <span style="display: inline-block; padding-right: 2rem;">✨ LIVRAISON GRATUITE : à partir de 20ml parfum designer &amp; 30ml parfum de niche ✨</span>
+      <span style="display: inline-block; padding-right: 2rem;">✨ LIVRAISON GRATUITE : à partir de 20ml parfum designer &amp; 30ml parfum de niche ✨</span>
+      <span style="display: inline-block; padding-right: 2rem;">✨ LIVRAISON GRATUITE : à partir de 20ml parfum designer &amp; 30ml parfum de niche ✨</span>
+      <span style="display: inline-block; padding-right: 2rem;">✨ LIVRAISON GRATUITE : à partir de 20ml parfum designer &amp; 30ml parfum de niche ✨</span>
+    </div>
+    <div style="display: flex; flex-shrink: 0; animation: marquee-scroll 25s linear infinite; white-space: nowrap;" aria-hidden="true">
+      <span style="display: inline-block; padding-right: 2rem;">✨ LIVRAISON GRATUITE : à partir de 20ml parfum designer &amp; 30ml parfum de niche ✨</span>
+      <span style="display: inline-block; padding-right: 2rem;">✨ LIVRAISON GRATUITE : à partir de 20ml parfum designer &amp; 30ml parfum de niche ✨</span>
+      <span style="display: inline-block; padding-right: 2rem;">✨ LIVRAISON GRATUITE : à partir de 20ml parfum designer &amp; 30ml parfum de niche ✨</span>
+      <span style="display: inline-block; padding-right: 2rem;">✨ LIVRAISON GRATUITE : à partir de 20ml parfum designer &amp; 30ml parfum de niche ✨</span>
+    </div>
   </div>
-
-  <div class="promo-banner">
-    ✨ LIVRAISON GRATUITE : à partir de 20ml parfum designer & 30ml parfum de niche ✨
+  <style>
+    @keyframes marquee-scroll {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-100%); }
+    }
+  </style>
   </div>
 
   <nav>
@@ -3463,9 +3481,10 @@
       <div class="nav-right">
         <!-- Desktop inline search -->
         <div class="search-container">
-          <span class="search-icon">🔍</span>
+          <span class="search-icon" style="cursor: pointer;" onclick="triggerDesktopSearch()">🔍</span>
           <input type="text" class="search-input" placeholder="Rechercher un parfum..."
-            oninput="handleSearch(this.value)" id="searchInput">
+            oninput="handleSearch(this.value)" id="searchInput"
+            onkeydown="if(event.key==='Enter') triggerDesktopSearch()">
           <div class="search-suggestions" id="searchSuggestions"></div>
         </div>
         <div class="nav-icons">
@@ -3486,11 +3505,11 @@
   <!-- SEARCH OVERLAY -->
   <div class="search-overlay" id="searchOverlay" onclick="handleOverlayClick(event)">
     <div class="search-overlay-inner">
-      <span class="search-overlay-icon">🔍</span>
+      <span class="search-overlay-icon" style="cursor: pointer; pointer-events: auto;" onclick="triggerOverlaySearch()">🔍</span>
       <input type="text" class="search-overlay-input" id="searchOverlayInput"
         placeholder="Rechercher un parfum..."
         oninput="handleOverlaySearch(this.value)"
-        onkeydown="if(event.key==='Escape') closeSearchOverlay()" />
+        onkeydown="if(event.key==='Escape') closeSearchOverlay(); if(event.key==='Enter') triggerOverlaySearch();" />
       <button class="search-overlay-close" onclick="closeSearchOverlay()">✕</button>
     </div>
     <div class="search-overlay-suggestions" id="searchOverlaySuggestions"></div>
@@ -3499,7 +3518,7 @@
   <div id="app-home-content">
     <div class="mmenu" id="mm">
       <div class="mmenu-header">
-        <div class="logo-t">MENU</div>
+        <div style="font-family:var(--serif);font-size:1.6rem;font-weight:800;color:var(--text);letter-spacing:-1px;">MENU</div>
         <button class="mclose" onclick="closeM2()">✕</button>
       </div>
       <div class="mmenu-links">
@@ -3895,22 +3914,9 @@
         <div class="fgrid">
           <div>
             <div class="fbrand">
-              <div class="fbi"><svg width="20" height="20" viewBox="0 0 64 64" fill="none"
-                  xmlns="http://www.w3.org/2000/svg">
-                  <defs>
-                    <radialGradient id="irisLogoGradFooter" cx="32" cy="32" r="30" gradientUnits="userSpaceOnUse">
-                      <stop offset="0%" stop-color="#8b5cf6" />
-                      <stop offset="100%" stop-color="#2563eb" />
-                    </radialGradient>
-                  </defs>
-                  <circle cx="32" cy="32" r="30" fill="url(#irisLogoGradFooter)" />
-                  <path d="M33 14c8 3 11 12 9 19-2.5-4-7-9.5-9-12-2 2.5-7 8-9 12-2-7 1-16 9-19Z"
-                    fill="rgba(255,255,255,0.95)" />
-                  <path d="M32 21c3 4 3.5 7.5 1.5 11-2-3.5-3.5-6.5-1.5-11Z" fill="white" opacity="0.9" />
-                  <path d="M28 19c-3 3.5-2.5 7.5-1 11 2-2 2.5-5.5 1-11Z" fill="white" opacity="0.9" />
-                  <path d="M24 34c2.5 3.5 6 5.5 9 7.5 3-2 6-4 8-7.5-3.5 0-6.5 1.5-9 1.5-2.5 0-5-1.5-8-1.5Z" fill="white"
-                    opacity="0.8" />
-                </svg></div>
+              <div class="fbi" style="background:transparent;overflow:hidden;border:none;">
+                <img src="logo/iris_logo_fini_3.webp" alt="Iris Perfumes" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />
+              </div>
               Iris Perfumes
             </div>
             <p class="fdesc">Votre destination de confiance pour les parfums originaux et décantés en Tunisie.
@@ -3983,7 +3989,9 @@
         <div style="display:flex; flex-wrap:wrap; gap:2.5rem; margin-bottom:2.5rem; padding-bottom:2.5rem; border-bottom:1px solid rgba(255,255,255,0.08);">
           <div style="flex:1.5; min-width:200px;">
             <div style="display:flex; align-items:center; gap:10px; margin-bottom:1rem;">
-              <svg width="28" height="28" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="mfLG" cx="32" cy="32" r="30" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#8b5cf6"/><stop offset="100%" stop-color="#2563eb"/></radialGradient></defs><circle cx="32" cy="32" r="30" fill="url(#mfLG)"/><path d="M33 14c8 3 11 12 9 19-2.5-4-7-9.5-9-12-2 2.5-7 8-9 12-2-7 1-16 9-19Z" fill="rgba(255,255,255,0.95)"/><path d="M32 21c3 4 3.5 7.5 1.5 11-2-3.5-3.5-6.5-1.5-11Z" fill="white" opacity="0.9"/><path d="M28 19c-3 3.5-2.5 7.5-1 11 2-2 2.5-5.5 1-11Z" fill="white" opacity="0.9"/><path d="M24 34c2.5 3.5 6 5.5 9 7.5 3-2 6-4 8-7.5-3.5 0-6.5 1.5-9 1.5-2.5 0-5-1.5-8-1.5Z" fill="white" opacity="0.8"/></svg>
+              <div style="width:34px; height:34px; border-radius:50%; overflow:hidden; background:transparent;">
+                <img src="logo/iris_logo_fini_3.webp" alt="Iris Perfumes" style="width:100%; height:100%; object-fit:cover;" />
+              </div>
               <span style="font-weight:800; color:#fff; font-size:1.1rem; letter-spacing:-0.02em;">Iris Perfumes</span>
             </div>
             <p style="line-height:1.7; font-size:0.88rem; max-width:240px; margin:0 0 1.2rem;">Votre destination de confiance pour les parfums originaux et décantés en Tunisie.</p>
@@ -4205,7 +4213,9 @@
         <div style="display:flex; flex-wrap:wrap; gap:2rem; margin-bottom:2rem; padding-bottom:2rem; border-bottom:1px solid rgba(255,255,255,0.08);">
           <div style="flex:1.5; min-width:180px;">
             <div style="display:flex; align-items:center; gap:10px; margin-bottom:0.8rem;">
-              <svg width="24" height="24" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="mfLG2" cx="32" cy="32" r="30" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#8b5cf6"/><stop offset="100%" stop-color="#2563eb"/></radialGradient></defs><circle cx="32" cy="32" r="30" fill="url(#mfLG2)"/><path d="M33 14c8 3 11 12 9 19-2.5-4-7-9.5-9-12-2 2.5-7 8-9 12-2-7 1-16 9-19Z" fill="rgba(255,255,255,0.95)"/><path d="M32 21c3 4 3.5 7.5 1.5 11-2-3.5-3.5-6.5-1.5-11Z" fill="white" opacity="0.9"/><path d="M28 19c-3 3.5-2.5 7.5-1 11 2-2 2.5-5.5 1-11Z" fill="white" opacity="0.9"/><path d="M24 34c2.5 3.5 6 5.5 9 7.5 3-2 6-4 8-7.5-3.5 0-6.5 1.5-9 1.5-2.5 0-5-1.5-8-1.5Z" fill="white" opacity="0.8"/></svg>
+              <div style="width:34px; height:34px; border-radius:50%; overflow:hidden; background:transparent;">
+                <img src="logo/iris_logo_fini_3.webp" alt="Iris Perfumes" style="width:100%; height:100%; object-fit:cover;" />
+              </div>
               <span style="font-weight:800; color:#fff; font-size:1rem;">Iris Perfumes</span>
             </div>
             <p style="line-height:1.7; font-size:0.85rem; max-width:220px; margin:0 0 1rem;">Parfums originaux décantés — Livraison partout en Tunisie.</p>
@@ -4504,7 +4514,7 @@
       ).slice(0, 6);
       if (!results.length) { sug.style.display = 'none'; sug.innerHTML = ''; return; }
       sug.innerHTML = results.map(p => `
-        <div class="suggestion-item" onclick="closeSearchOverlay();openProduct(${p.id})"
+        <div class="suggestion-item" onclick="closeSearchOverlay();openPM(${p.id})"
           style="display:flex;align-items:center;gap:12px;padding:12px 16px;cursor:pointer;border-bottom:1px solid #f1f5f9;"
           onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background=''">
           <img src="${p.img}" style="width:40px;height:40px;object-fit:cover;border-radius:8px;" />
@@ -4514,6 +4524,40 @@
           </div>
         </div>`).join('');
       sug.style.display = 'block';
+    }
+
+    function triggerOverlaySearch() {
+      const input = document.getElementById('searchOverlayInput');
+      if (input) {
+        const query = input.value.trim().toLowerCase();
+        if (query) {
+          const match = PERFS.find(p =>
+            (p.brand + ' ' + p.name).toLowerCase().includes(query)
+          );
+          if (match) {
+            closeSearchOverlay();
+            openPM(match.id);
+          }
+        }
+      }
+    }
+
+    function triggerDesktopSearch() {
+      const input = document.getElementById('searchInput');
+      if (input) {
+        const query = input.value.trim().toLowerCase();
+        if (query) {
+          const match = PERFS.find(p =>
+            (p.brand + ' ' + p.name).toLowerCase().includes(query)
+          );
+          if (match) {
+            const suggestions = document.getElementById('searchSuggestions');
+            if (suggestions) suggestions.style.display = 'none';
+            input.value = '';
+            openPM(match.id);
+          }
+        }
+      }
     }
 
     /* Show mobile search icon / hide on desktop */
@@ -4533,20 +4577,20 @@
       { id: 4, brand: "Jean Paul Gaultier", name: "Le Male Elixir Absolu", type: "Eau de Parfum", genre: "homme", prices: { 5: 25, 10: 48, 15: 72, 20: 100, 30: 147, full: 147 }, top: "Menthe, Anis", heart: "Lavande, Fleur d'Oranger", base: "Vanille, Benjoin", desc: "Plus intense et envoûtant — Le Male Elixir Absolu est la version ultime du séducteur, avec une profondeur olfactive incomparable.", badge: "", stock: "dispo", c1: "#0f172a", c2: "#8b5cf6", img: "Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Jean_paul_gaultier_le_male_elixir_absolu/Background.webp", gallery: ["Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Jean_paul_gaultier_le_male_elixir_absolu/Background.webp", "Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Jean_paul_gaultier_le_male_elixir_absolu/IMG_5105.JPG", "Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Jean_paul_gaultier_le_male_elixir_absolu/IMG_5106.webp", "Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Jean_paul_gaultier_le_male_elixir_absolu/IMG_5107.JPG"] },
       { id: 5, brand: "Stronger With You", name: "Absolutely", type: "Eau de Parfum", genre: "homme", prices: { 5: 27, 10: 50, 15: 65, 20: 100, 30: 150, full: 150 }, top: "Rhubarbe, Gingembre", heart: "Lavande, Noix de Muscade", base: "Vanille, Bois de Santal", desc: "Gourmand et chaleureux, Absolutely est un parfum velouté qui marque les esprits.", badge: "Populaire", stock: "dispo", c1: "#1e293b", c2: "#fb7185", img: "Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Stronger_with_you_absolutely/Background.webp", gallery: ["Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Stronger_with_you_absolutely/Background.webp", "Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Stronger_with_you_absolutely/IMG_5086.webp"] },
       { id: 6, brand: "Stronger With You", name: "Intensely", type: "Eau de Parfum", genre: "homme", prices: { 5: 22, 10: 40, 15: 60, 20: 85, 30: 124, full: 124 }, top: "Poire, Rose", heart: "Café, Cardamome", base: "Fève Tonka, Vanille", desc: "Riche et moderne, Intensely allie gourmandise et bois exotiques pour un effet addictif.", badge: "", stock: "dispo", c1: "#0f172a", c2: "#7c3aed", img: "Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Stronger_with_you_intensely/Background.webp", gallery: ["Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Stronger_with_you_intensely/Background.webp", "Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Stronger_with_you_intensely/IMG_2289.JPG", "Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Stronger_with_you_intensely/IMG_3946.JPG", "Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Stronger_with_you_intensely/IMG_3947.JPG", "Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Stronger_with_you_intensely/IMG_3948.JPG"] },
-      { id: 7, brand: "YSL", name: "Y Iced Cologne", type: "Eau de Cologne", genre: "homme", prices: { 5: 30, 10: 55, 20: 110, 30: 165, full: 165 }, top: "Bergamote, Gingembre", heart: "Pomme, Anis", base: "Cèdre, Bois de Santal", desc: "Frais et glaçant, Y Iced Cologne capture l'essence de la modernité avec une touche glacée.", badge: "", stock: "dispo", c1: "#0f2344", c2: "#1e40af", img: "Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Yves_saint_laurent_Y_iced_cologne/Background.webp", gallery: ["Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Yves_saint_laurent_Y_iced_cologne/Background.webp", "Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Yves_saint_laurent_Y_iced_cologne/IMG_5119.webp", "Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Yves_saint_laurent_Y_iced_cologne/IMG_5120.JPG", "Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Yves_saint_laurent_Y_iced_cologne/IMG_5122.JPG"] },
+      { id: 7, brand: "Yves saint laurent", name: "Y Iced Cologne", type: "Eau de Cologne", genre: "homme", prices: { 5: 30, 10: 55, 20: 110, 30: 165, full: 165 }, top: "Bergamote, Gingembre", heart: "Pomme, Anis", base: "Cèdre, Bois de Santal", desc: "Frais et glaçant, Y Iced Cologne capture l'essence de la modernité avec une touche glacée.", badge: "", stock: "dispo", c1: "#0f2344", c2: "#1e40af", img: "Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Yves_saint_laurent_Y_iced_cologne/Background.webp", gallery: ["Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Yves_saint_laurent_Y_iced_cologne/Background.webp", "Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Yves_saint_laurent_Y_iced_cologne/IMG_5119.webp", "Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Yves_saint_laurent_Y_iced_cologne/IMG_5120.JPG", "Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Yves_saint_laurent_Y_iced_cologne/IMG_5122.JPG"] },
       { id: 8, brand: "Boss", name: "Bottled Bold Citrus", type: "Eau de Parfum", genre: "homme", prices: { 5: 16, 10: 29, 15: 43, full: 128 }, top: "Agrumes, Bergamote", heart: "Poivre, Musc", base: "Cèdre, Bois de Santal", desc: "Frais et énergique, Bold Citrus offre une explosion d'agrumes pour l'homme moderne et dynamique.", badge: "", stock: "dispo", c1: "#1e40af", c2: "#f97316", img: "Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Boss_bottled_bold_citrus/Background_.webp", gallery: ["Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Boss_bottled_bold_citrus/Background_.webp", "Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Boss_bottled_bold_citrus/IMG_5128.JPG", "Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Boss_bottled_bold_citrus/IMG_5130.webp", "Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Boss_bottled_bold_citrus/IMG_5131.webp", "Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Boss_bottled_bold_citrus/IMG_5132.webp"] },
       { id: 9, brand: "Jean Paul Gaultier", name: "Le Male Le Parfum", type: "Eau de Parfum", genre: "homme", prices: { 5: 18, 10: 32, 15: 45, full: 130 }, top: "Jasmin, Lavande", heart: "Vanille, Musc", base: "Bois d'Oud, Ambroxan", desc: "La signature masculine ultime — Le Male Le Parfum allie tradition et modernité avec une élégance intemporelle.", badge: "Best-seller", stock: "dispo", c1: "#0f172a", c2: "#8b5cf6", img: "Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Jean_paul_gaultier_le_male_le_parfum/Background.webp", gallery: ["Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Jean_paul_gaultier_le_male_le_parfum/Background.webp", "Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Jean_paul_gaultier_le_male_le_parfum/IMG_5134.webp", "Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Jean_paul_gaultier_le_male_le_parfum/IMG_5135.JPG", "Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Jean_paul_gaultier_le_male_le_parfum/IMG_5136.webp"] },
       { id: 10, brand: "Armani", name: "Power of You", type: "Eau de Parfum", genre: "femme", prices: { 5: 35, 10: 65, 15: 95, 20: 130, 30: 195, full: 195 }, top: "Jasmin, Néroli", heart: "Rose, Iris", base: "Vanille, Ambre", desc: "Féminine et audacieuse, Power of You célèbre la force délicate des femmes modernes.", badge: "Nouveauté", stock: "dispo", c1: "#ec4899", c2: "#9333ea", img: "Iris_page-20260419T024341Z-3-001/Iris_page/Femme/Armani_Power_of_you/Background.webp", gallery: ["Iris_page-20260419T024341Z-3-001/Iris_page/Femme/Armani_Power_of_you/Background.webp", "Iris_page-20260419T024341Z-3-001/Iris_page/Femme/Armani_Power_of_you/IMG_5094.JPG", "Iris_page-20260419T024341Z-3-001/Iris_page/Femme/Armani_Power_of_you/IMG_5095.JPG"] },
       { id: 11, brand: "Lancôme", name: "Idôle Eau de Parfum", type: "Eau de Parfum", genre: "femme", prices: { 5: 28, 10: 52, 15: 78, 20: 109, 30: 161, full: 161 }, top: "Pomme, Bergamote", heart: "Rose, Jasmin", base: "Musc, Vanille", desc: "Élégant et lumineux, Idôle est une fragrance moderne pour la femme confiante.", badge: "", stock: "dispo", c1: "#db2777", c2: "#9333ea", img: "Iris_page-20260419T024341Z-3-001/Iris_page/Femme/Lanc_me_id_le_eau_de_parfum/Background.webp", gallery: ["Iris_page-20260419T024341Z-3-001/Iris_page/Femme/Lanc_me_id_le_eau_de_parfum/Background.webp", "Iris_page-20260419T024341Z-3-001/Iris_page/Femme/Lanc_me_id_le_eau_de_parfum/IMG_5091.JPG", "Iris_page-20260419T024341Z-3-001/Iris_page/Femme/Lanc_me_id_le_eau_de_parfum/IMG_5092.JPG", "Iris_page-20260419T024341Z-3-001/Iris_page/Femme/Lanc_me_id_le_eau_de_parfum/IMG_7675.JPG"] },
-      { id: 12, brand: "YSL", name: "Black Opium", type: "Eau de Parfum", genre: "femme", prices: { 5: 28, 10: 55, 15: 82, 20: 115, 30: 170, full: 170 }, top: "Poire, Fleur d'Oranger", heart: "Jasmin, Café Noir", base: "Vanille, Patchouli", desc: "Envoûtant, doux et sensuel, Black Opium est une signature féminine gourmande.", badge: "Populaire", stock: "dispo", c1: "#111827", c2: "#9333ea", img: "Iris_page-20260419T024341Z-3-001/Iris_page/Femme/Yves_saint_laurent_black_opium_eau_de_parfum/Background_.webp", gallery: ["Iris_page-20260419T024341Z-3-001/Iris_page/Femme/Yves_saint_laurent_black_opium_eau_de_parfum/Background_.webp", "Iris_page-20260419T024341Z-3-001/Iris_page/Femme/Yves_saint_laurent_black_opium_eau_de_parfum/IMG_5097.webp", "Iris_page-20260419T024341Z-3-001/Iris_page/Femme/Yves_saint_laurent_black_opium_eau_de_parfum/IMG_5099.JPG"] },
-      { id: 13, brand: "Mancera", name: "Cedrat Boisé", type: "Eau de Parfum", genre: "niche", prices: { 5: 32, 10: 60, 20: 120, 30: 180, full: 180 }, top: "Bergamote, Cédrat", heart: "Jasmin, Musc", base: "Bois de Santal, Cèdre", desc: "Un parfum aérien et boisé, élégant et sophistiqué, pour les amateurs de fragrances nobles.", badge: "Niche - Best-seller", stock: "dispo", c1: "#1e3a8a", c2: "#7c2d12", img: "Iris_page-20260419T024341Z-3-001/Iris_page/Niche/Mancera_cedrat_boise/Background.webp", gallery: ["Iris_page-20260419T024341Z-3-001/Iris_page/Niche/Mancera_cedrat_boise/Background.webp", "Iris_page-20260419T024341Z-3-001/Iris_page/Niche/Mancera_cedrat_boise/IMG_5115.webp", "Iris_page-20260419T024341Z-3-001/Iris_page/Niche/Mancera_cedrat_boise/IMG_5117.JPG"] },
+      { id: 12, brand: "Yves saint laurent", name: "Black Opium", type: "Eau de Parfum", genre: "femme", prices: { 5: 28, 10: 55, 15: 82, 20: 115, 30: 170, full: 170 }, top: "Poire, Fleur d'Oranger", heart: "Jasmin, Café Noir", base: "Vanille, Patchouli", desc: "Envoûtant, doux et sensuel, Black Opium est une signature féminine gourmande.", badge: "Populaire", stock: "dispo", c1: "#111827", c2: "#9333ea", img: "Iris_page-20260419T024341Z-3-001/Iris_page/Femme/Yves_saint_laurent_black_opium_eau_de_parfum/Background_.webp", gallery: ["Iris_page-20260419T024341Z-3-001/Iris_page/Femme/Yves_saint_laurent_black_opium_eau_de_parfum/Background_.webp", "Iris_page-20260419T024341Z-3-001/Iris_page/Femme/Yves_saint_laurent_black_opium_eau_de_parfum/IMG_5097.webp", "Iris_page-20260419T024341Z-3-001/Iris_page/Femme/Yves_saint_laurent_black_opium_eau_de_parfum/IMG_5099.JPG"] },
+      { id: 13, brand: "Mancera", name: "Cedrat boise", type: "Eau de Parfum", genre: "niche", prices: { 5: 32, 10: 60, 20: 120, 30: 180, full: 180 }, top: "Bergamote, Cédrat", heart: "Jasmin, Musc", base: "Bois de Santal, Cèdre", desc: "Un parfum aérien et boisé, élégant et sophistiqué, pour les amateurs de fragrances nobles.", badge: "Niche - Best-seller", stock: "dispo", c1: "#1e3a8a", c2: "#7c2d12", img: "Iris_page-20260419T024341Z-3-001/Iris_page/Niche/Mancera_cedrat_boise/Background.webp", gallery: ["Iris_page-20260419T024341Z-3-001/Iris_page/Niche/Mancera_cedrat_boise/Background.webp", "Iris_page-20260419T024341Z-3-001/Iris_page/Niche/Mancera_cedrat_boise/IMG_5115.webp", "Iris_page-20260419T024341Z-3-001/Iris_page/Niche/Mancera_cedrat_boise/IMG_5117.JPG"] },
       { id: 14, brand: "Mancera", name: "Instant Crush", type: "Eau de Parfum", genre: "niche", prices: { 5: 27, 10: 55, 15: 80, 20: 110, 30: 165, full: 165 }, top: "Bergamote, Framboise", heart: "Rose, Géranium", base: "Vanille, Ambre", desc: "Un coup de foudre olfactif — Instant Crush est une explosion sensuelle et gourmande.", badge: "Niche", stock: "dispo", c1: "#831843", c2: "#f97316", img: "Iris_page-20260419T024341Z-3-001/Iris_page/Niche/Mancera_instant_crush/Background.webp", gallery: ["Iris_page-20260419T024341Z-3-001/Iris_page/Niche/Mancera_instant_crush/Background.webp", "Iris_page-20260419T024341Z-3-001/Iris_page/Niche/Mancera_instant_crush/IMG_5114.webp"] },
       { id: 15, brand: "Xerjoff", name: "Erba Pura", type: "Eau de Parfum", genre: "niche", prices: { 5: 50, 10: 90, 20: 180, 30: 274, full: 274 }, top: "Herbes, Bergamote", heart: "Fleurs Vertes, Musc", base: "Ambre, Bois", desc: "Un voyage luxueux à travers les herbes aromatiques et les essences précieuses — Erba Pura.", badge: "Niche Premium", stock: "dispo", c1: "#7c2d12", c2: "#fbbf24", img: "Iris_page-20260419T024341Z-3-001/Iris_page/Niche/Xerjoff_erba_gold/Background.webp", gallery: ["Iris_page-20260419T024341Z-3-001/Iris_page/Niche/Xerjoff_erba_gold/Background.webp", "Iris_page-20260419T024341Z-3-001/Iris_page/Niche/Xerjoff_erba_gold/IMG_5112.JPG"] },
       { id: 16, brand: "Versace", name: "Eros Eau de Parfum", type: "Eau de Parfum", genre: "homme", prices: { 5: 15, 10: 28, 15: 42, full: 110 }, top: "Menthe, Pomme Verte", heart: "Fève Tonka, Géranium", base: "Vanille, Cèdre", desc: "L'amour, la passion, la beauté et le désir : tels sont les concepts clés du parfum masculin Versace Eros.", badge: "Nouveau", stock: "dispo", c1: "#007a8c", c2: "#bf9b30", img: "Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Versace_erod_eau_de_parfum/Background.webp", gallery: ["Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Versace_erod_eau_de_parfum/Background.webp", "Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Versace_erod_eau_de_parfum/IMG_5417.webp"] },
-      { id: 17, brand: "YSL", name: "MYSLF L'Absolu", type: "Eau de Parfum", genre: "homme", prices: { 5: 32, 10: 60, 20: 124, 30: 184, full: 184 }, top: "Bergamote, Sauge", heart: "Fleur d'Oranger", base: "Bois de Gaïac, Patchouli", desc: "Une expression intense et sensuelle de l'homme moderne, MYSLF L'Absolu est une signature audacieuse.", badge: "Intense", stock: "dispo", c1: "#111111", c2: "#444444", img: "Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Yves_saint_laurent_MYSLF_L_ABSOLU/Background.webp", gallery: ["Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Yves_saint_laurent_MYSLF_L_ABSOLU/Background.webp", "Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Yves_saint_laurent_MYSLF_L_ABSOLU/IMG_5124.webp", "Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Yves_saint_laurent_MYSLF_L_ABSOLU/IMG_5125.JPG", "Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Yves_saint_laurent_MYSLF_L_ABSOLU/IMG_5126.JPG", "Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Yves_saint_laurent_MYSLF_L_ABSOLU/IMG_5127.JPG"] },
-      { id: 18, brand: "YSL", name: "Libre Intense", type: "Eau de Parfum", genre: "femme", prices: { 5: 32, 10: 60, 15: 90, 20: 120, 30: 180, full: 180 }, top: "Lavande, Mandarine", heart: "Fleur d'Oranger, Orchidée", base: "Vanille, Ambre Gris", desc: "Le parfum d'une femme libre et instinctive qui ose vivre selon ses propres règles.", badge: "Élégant", stock: "dispo", c1: "#8b5cf6", c2: "#d97706", img: "Iris_page-20260419T024341Z-3-001/Iris_page/Femme/Yves_saint_laurent_libre_intense/Background.webp", gallery: ["Iris_page-20260419T024341Z-3-001/Iris_page/Femme/Yves_saint_laurent_libre_intense/Background.webp", "Iris_page-20260419T024341Z-3-001/Iris_page/Femme/Yves_saint_laurent_libre_intense/IMG_5142.JPG", "Iris_page-20260419T024341Z-3-001/Iris_page/Femme/Yves_saint_laurent_libre_intense/IMG_5143.webp", "Iris_page-20260419T024341Z-3-001/Iris_page/Femme/Yves_saint_laurent_libre_intense/IMG_5144.JPG"] },
+      { id: 17, brand: "Yves saint laurent", name: "MYSLF L'Absolu", type: "Eau de Parfum", genre: "homme", prices: { 5: 32, 10: 60, 20: 124, 30: 184, full: 184 }, top: "Bergamote, Sauge", heart: "Fleur d'Oranger", base: "Bois de Gaïac, Patchouli", desc: "Une expression intense et sensuelle de l'homme moderne, MYSLF L'Absolu est une signature audacieuse.", badge: "Intense", stock: "dispo", c1: "#111111", c2: "#444444", img: "Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Yves_saint_laurent_MYSLF_L_ABSOLU/Background.webp", gallery: ["Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Yves_saint_laurent_MYSLF_L_ABSOLU/Background.webp", "Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Yves_saint_laurent_MYSLF_L_ABSOLU/IMG_5124.webp", "Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Yves_saint_laurent_MYSLF_L_ABSOLU/IMG_5125.JPG", "Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Yves_saint_laurent_MYSLF_L_ABSOLU/IMG_5126.JPG", "Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Yves_saint_laurent_MYSLF_L_ABSOLU/IMG_5127.JPG"] },
+      { id: 18, brand: "Yves saint laurent", name: "Libre Intense", type: "Eau de Parfum", genre: "femme", prices: { 5: 32, 10: 60, 15: 90, 20: 120, 30: 180, full: 180 }, top: "Lavande, Mandarine", heart: "Fleur d'Oranger, Orchidée", base: "Vanille, Ambre Gris", desc: "Le parfum d'une femme libre et instinctive qui ose vivre selon ses propres règles.", badge: "Élégant", stock: "dispo", c1: "#8b5cf6", c2: "#d97706", img: "Iris_page-20260419T024341Z-3-001/Iris_page/Femme/Yves_saint_laurent_libre_intense/Background.webp", gallery: ["Iris_page-20260419T024341Z-3-001/Iris_page/Femme/Yves_saint_laurent_libre_intense/Background.webp", "Iris_page-20260419T024341Z-3-001/Iris_page/Femme/Yves_saint_laurent_libre_intense/IMG_5142.JPG", "Iris_page-20260419T024341Z-3-001/Iris_page/Femme/Yves_saint_laurent_libre_intense/IMG_5143.webp", "Iris_page-20260419T024341Z-3-001/Iris_page/Femme/Yves_saint_laurent_libre_intense/IMG_5144.JPG"] },
       { id: 19, brand: "Armaf", name: "Club de Nuit", type: "Eau de Parfum", genre: "homme", prices: { 10: 15, 15: 23, 20: 27, 30: 43 }, top: "Citron, Bouleau", heart: "Jasmin, Rose", base: "Musc, Patchouli", desc: "Un classique moderne, frais et puissant, connu pour son sillage exceptionnel.", badge: "Value", stock: "dispo", c1: "#000000", c2: "#333333", img: "Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Armaf_club_de_nuit_intense_men/Background.webp", gallery: ["Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Armaf_club_de_nuit_intense_men/Background.webp", "Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Armaf_club_de_nuit_intense_men/IMG_5464.JPG", "Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Armaf_club_de_nuit_intense_men/IMG_5465.webp"] },
-      { id: 20, brand: "YSL", name: "Y Eau de Parfum", type: "Eau de Parfum", genre: "homme", prices: { 5: 25, 10: 48, 15: 70, 20: 100 }, top: "Pomme, Gingembre", heart: "Sauge, Géranium", base: "Ambre Gris, Cèdre", desc: "La quintessence de l'élégance moderne, frais et profond à la fois.", badge: "Must-have", stock: "dispo", c1: "#0f172a", c2: "#3b82f6", img: "Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Yves_saint_laurent_Y_eau_de_parfum/Background.webp", gallery: ["Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Yves_saint_laurent_Y_eau_de_parfum/Background.webp", "Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Yves_saint_laurent_Y_eau_de_parfum/IMG_5460.webp", "Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Yves_saint_laurent_Y_eau_de_parfum/IMG_5461.JPG", "Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Yves_saint_laurent_Y_eau_de_parfum/IMG_5462.JPG"] },
+      { id: 20, brand: "Yves saint laurent", name: "Y Eau de Parfum", type: "Eau de Parfum", genre: "homme", prices: { 5: 25, 10: 48, 15: 70, 20: 100 }, top: "Pomme, Gingembre", heart: "Sauge, Géranium", base: "Ambre Gris, Cèdre", desc: "La quintessence de l'élégance moderne, frais et profond à la fois.", badge: "Must-have", stock: "dispo", c1: "#0f172a", c2: "#3b82f6", img: "Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Yves_saint_laurent_Y_eau_de_parfum/Background.webp", gallery: ["Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Yves_saint_laurent_Y_eau_de_parfum/Background.webp", "Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Yves_saint_laurent_Y_eau_de_parfum/IMG_5460.webp", "Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Yves_saint_laurent_Y_eau_de_parfum/IMG_5461.JPG", "Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Yves_saint_laurent_Y_eau_de_parfum/IMG_5462.JPG"] },
       { id: 21, brand: "Valentino", name: "Uomo Born In Roma Intense", type: "Eau de Parfum", genre: "homme", prices: { 5: 25, 10: 48, 15: 72, 20: 100, 30: 147 }, top: "Vanille, Gingembre", heart: "Sauge, Lavande", base: "Vétiver, Cuir", desc: "Une version intense et sensuelle du classique Born In Roma, parfaite pour le soir.", badge: "Intense", stock: "dispo", c1: "#000000", c2: "#ff0000", img: "Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Valentino_uomo_born_in_roma_intense/Background.webp", gallery: ["Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Valentino_uomo_born_in_roma_intense/Background.webp", "Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Valentino_uomo_born_in_roma_intense/IMG_5422.webp", "Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Valentino_uomo_born_in_roma_intense/IMG_5423.webp"] }
     ];
 
@@ -4892,15 +4936,17 @@
       const qty = qtyInput ? (parseInt(qtyInput.value) || 1) : 1;
       let cart = JSON.parse(localStorage.getItem('iris_cart') || '[]');
       
-      // Calculate total volume after addition
+      // Calculate total volume after addition for this specific perfume
       let currentVol = 0;
       cart.forEach(i => {
-        let szVal = i.size === 'full' ? 30 : (Number(i.size) || 5);
-        currentVol += szVal * i.qty;
+        if (i.id === id) {
+          let szVal = i.size === 'full' ? 30 : (Number(i.size) || 5);
+          currentVol += szVal * i.qty;
+        }
       });
       let newSzVal = sz === 'full' ? 30 : (Number(sz) || 5);
       if (currentVol + (newSzVal * qty) > 30) {
-        alert("La quantité totale maximale autorisée dans le panier est de 30ml.");
+        alert("La quantité maximale autorisée est de 30ml par parfum.");
         return;
       }
 
@@ -4930,15 +4976,17 @@
       const qty = parseInt((qtyInput && qtyInput.value) || 1);
       let cart = JSON.parse(localStorage.getItem('iris_cart') || '[]');
       
-      // Calculate total volume after addition
+      // Calculate total volume for this specific perfume after addition
       let currentVol = 0;
       cart.forEach(i => {
-        let szVal = i.size === 'full' ? 30 : (Number(i.size) || 5);
-        currentVol += szVal * i.qty;
+        if (i.id === id) {
+          let szVal = i.size === 'full' ? 30 : (Number(i.size) || 5);
+          currentVol += szVal * i.qty;
+        }
       });
       let newSzVal = sz === 'full' ? 30 : (Number(sz) || 5);
       if (currentVol + (newSzVal * qty) > 30) {
-        alert("La quantité totale maximale autorisée dans le panier est de 30ml.");
+        alert("La quantité maximale autorisée est de 30ml par parfum.");
         return;
       }
 
@@ -5732,17 +5780,19 @@ Paiement   : ${payLabel}`;
       const item = cart.find(i => i.id === id && (i.size || 5) == size);
       if (!item) return;
 
-      // Calculate total volume after change
+      // Calculate total volume for this specific perfume after change
       let currentVol = 0;
       cart.forEach(i => {
-        let szVal = i.size === 'full' ? 30 : (Number(i.size) || 5);
-        currentVol += szVal * i.qty;
+        if (i.id === id) {
+          let szVal = i.size === 'full' ? 30 : (Number(i.size) || 5);
+          currentVol += szVal * i.qty;
+        }
       });
 
       if (delta > 0) {
         let szVal = size === 'full' ? 30 : (Number(size) || 5);
         if (currentVol + (szVal * delta) > 30) {
-          alert("La quantité totale maximale autorisée dans le panier est de 30ml.");
+          alert("La quantité maximale autorisée est de 30ml par parfum.");
           return;
         }
       }
@@ -5926,6 +5976,8 @@ Paiement   : ${payLabel}`;
       const gallery = (p.gallery && p.gallery.length) ? p.gallery : [p.img];
       const numericSizes = Object.keys(p.prices || {}).map(x => Number(x)).filter(n => !isNaN(n)).sort((a, b) => a - b);
       let sizesHtml = numericSizes.map(s => `<button class="msb m-szb ${s == sz ? 's' : ''}" data-size="${s}" onclick="mSelSz(${p.id}, ${s}, this)">${s}ml</button>`).join('');
+      const wishlist = JSON.parse(localStorage.getItem('iris_wishlist') || '[]');
+      const isFav = wishlist.indexOf(p.id) !== -1;
 
       wrap.innerHTML = `
       <div class="product-view">
@@ -5951,6 +6003,10 @@ Paiement   : ${payLabel}`;
             <input id="m_qty" type="number" min="1" value="1" style="width:70px;padding:0.5rem;border-radius:8px;border:1px solid #e5e7eb" />
             <button class="m-btn-pri" onclick="addToCartQty(${p.id})">Ajouter au panier</button>
             <button class="m-btn-sec" onclick="buyNowCheckout(${p.id})">Commander maintenant</button>
+          </div>
+          <div style="margin-top:16px;display:flex;align-items:center;gap:8px;cursor:pointer;color:#475569;width:fit-content;" onclick="toggleFav(event, ${p.id}); renderProductIntoModal(PERFS.find(x => x.id === ${p.id}));">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="${isFav ? '#ef4444' : 'none'}" stroke="${isFav ? '#ef4444' : 'currentColor'}" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+            <span style="font-weight:600;font-size:0.9rem;">Ajouter à la liste de souhaits</span>
           </div>
         </div>
       </div>`;
@@ -5985,6 +6041,9 @@ Paiement   : ${payLabel}`;
       history.pushState({ view: 'product' }, '', '#product');
       const wrap = document.getElementById('pmbd');
       if (!wrap) return;
+      const wishlist = JSON.parse(localStorage.getItem('iris_wishlist') || '[]');
+      const isFav = wishlist.indexOf(p.id) !== -1;
+
       const gallery = (p.gallery && p.gallery.length) ? p.gallery : [p.img];
       if (!cSizes[p.id]) {
         const sizes = Object.keys(p.prices || {}).map(x => Number(x)).filter(n => !isNaN(n));
@@ -6018,10 +6077,14 @@ Paiement   : ${payLabel}`;
           <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px">
             <button onclick="(function(){const el=document.getElementById('pp_qty');el.value=Math.max(1,parseInt(el.value||1)-1)})()">-</button>
             <input id="pp_qty" type="number" min="1" value="1" style="width:72px;padding:6px;border-radius:8px;border:1px solid #e5e7eb" />
-            <button onclick="(function(){const el=document.getElementById('pp_qty');let qty=parseInt(el.value||1)+1;let cart=JSON.parse(localStorage.getItem('iris_cart')||'[]');let currentVol=0;cart.forEach(i=>{let szVal=i.size==='full'?30:(Number(i.size)||5);currentVol+=szVal*i.qty;});let sz=cSizes[${p.id}]||5;let newSzVal=sz==='full'?30:(Number(sz)||5);if(currentVol+(newSzVal*qty)>30){alert('La quantité totale maximale autorisée dans le panier est de 30ml.');return;}el.value=qty;})()">+</button>
+            <button onclick="(function(){const el=document.getElementById('pp_qty');let qty=parseInt(el.value||1)+1;let cart=JSON.parse(localStorage.getItem('iris_cart')||'[]');let currentVol=0;cart.forEach(i=>{if(i.id===${p.id}){let szVal=i.size==='full'?30:(Number(i.size)||5);currentVol+=szVal*i.qty;}});let sz=cSizes[${p.id}]||5;let newSzVal=sz==='full'?30:(Number(sz)||5);if(currentVol+(newSzVal*qty)>30){alert('La quantité maximale autorisée est de 30ml par parfum.');return;}el.value=qty;})()">+</button>
             <button class="m-btn-pri" style="margin-left:auto" onclick="addToCartQty(${p.id})">Ajouter au panier</button>
           </div>
           <div><button class="m-btn-pri" style="width:100%" onclick="buyNowCheckout(${p.id})">Commander maintenant</button></div>
+          <div style="margin-top:16px;display:flex;align-items:center;gap:8px;cursor:pointer;color:#475569;width:fit-content;" onclick="toggleFav(event, ${p.id}); renderProductPage(PERFS.find(x => x.id === ${p.id}));">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="${isFav ? '#ef4444' : 'none'}" stroke="${isFav ? '#ef4444' : 'currentColor'}" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+            <span style="font-weight:600">Ajouter à la liste de souhaits</span>
+          </div>
         </div>
       </div>
       <div style="margin-top:32px; background:#fff; padding:32px; border-radius:12px; border:1px solid #e5e7eb; box-shadow:0 10px 30px rgba(0,0,0,0.02)">
