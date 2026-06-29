@@ -2921,42 +2921,69 @@
       right: 20px;
     }
 
-    /* SEARCH STYLES */
-    .search-container {
+    /* SEARCH OVERLAY STYLES */
+    .search-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.92);
+      z-index: 9999;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 120px;
+      backdrop-filter: blur(8px);
+    }
+    .search-overlay.active {
+      display: flex;
+    }
+    .search-overlay-inner {
+      width: 90%;
+      max-width: 600px;
       position: relative;
-      margin-right: 1rem;
     }
-
-    .search-input {
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      padding: 0.6rem 1rem 0.6rem 2.5rem;
-      border-radius: 99px;
+    .search-overlay-input {
+      width: 100%;
+      padding: 1rem 1.2rem 1rem 3.2rem;
+      border-radius: 16px;
+      border: 2px solid var(--p1);
+      font-size: 1.1rem;
       font-family: var(--sans);
-      font-size: 0.85rem;
-      width: 200px;
-      transition: all 0.3s;
-      color: #fff;
-    }
-
-    .search-input:focus {
-      width: 300px;
       background: #fff;
-      border-color: var(--p1);
-      box-shadow: 0 0 0 4px rgba(108, 63, 197, 0.05);
+      color: #0f172a;
       outline: none;
+      box-shadow: 0 8px 32px rgba(108, 63, 197, 0.18);
     }
-
-    .search-icon {
+    .search-overlay-icon {
       position: absolute;
-      left: 12px;
+      left: 14px;
       top: 50%;
       transform: translateY(-50%);
-      color: var(--gray);
+      font-size: 1.2rem;
+      color: var(--p1);
       pointer-events: none;
     }
-
+    .search-overlay-close {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      font-size: 1.4rem;
+      color: #64748b;
+      cursor: pointer;
+      line-height: 1;
+    }
+    .search-overlay-suggestions {
+      margin-top: 12px;
+      background: #fff;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+      display: none;
+    }
     .search-suggestions {
+      /* kept for desktop compat – hidden on mobile via overlay */
       position: absolute;
       top: 100%;
       left: 0;
@@ -3126,6 +3153,10 @@
       .top-carousel {
         height: 380px !important;
       }
+      /* On mobile, hide the desktop inline search bar entirely */
+      .nav-right > .search-container {
+        display: none !important;
+      }
     }
     @media (max-width: 600px) {
       #login-modal-box {
@@ -3137,10 +3168,6 @@
 
       .nav-icons {
         gap: 0.2rem;
-      }
-
-      .search-container {
-        max-width: 120px !important;
       }
 
       .ud-container {
@@ -3372,7 +3399,7 @@
 
       <!-- TOP RIGHT: Icons -->
       <div class="nav-right">
-        <!-- Search Bar -->
+        <!-- Desktop inline search -->
         <div class="search-container">
           <span class="search-icon">🔍</span>
           <input type="text" class="search-input" placeholder="Rechercher un parfum..."
@@ -3380,6 +3407,9 @@
           <div class="search-suggestions" id="searchSuggestions"></div>
         </div>
         <div class="nav-icons">
+          <!-- Mobile search icon (hidden on desktop) -->
+          <button class="icon-btn" id="mobileSearchBtn" onclick="openSearchOverlay()" title="Rechercher"
+            style="display:none; font-size:1.2rem;">🔍</button>
           <button class="icon-btn" id="loginBtn" onclick="openLogin()" title="Connexion"><span
               style="font-size:1.2rem;line-height:1;">👤</span></button>
           <button class="icon-btn" id="wishlistNav" title="Wishlist" style="position:relative">❤<span class="cart-badge"
@@ -3390,6 +3420,19 @@
       </div>
     </div>
   </nav>
+
+  <!-- SEARCH OVERLAY -->
+  <div class="search-overlay" id="searchOverlay" onclick="handleOverlayClick(event)">
+    <div class="search-overlay-inner">
+      <span class="search-overlay-icon">🔍</span>
+      <input type="text" class="search-overlay-input" id="searchOverlayInput"
+        placeholder="Rechercher un parfum..."
+        oninput="handleOverlaySearch(this.value)"
+        onkeydown="if(event.key==='Escape') closeSearchOverlay()" />
+      <button class="search-overlay-close" onclick="closeSearchOverlay()">✕</button>
+    </div>
+    <div class="search-overlay-suggestions" id="searchOverlaySuggestions"></div>
+  </div>
 
   <div id="app-home-content">
     <div class="mmenu" id="mm">
@@ -4343,6 +4386,65 @@
         if (el) el.scrollIntoView({ behavior: 'smooth' });
       }, 150);
     }
+
+    /* ===== SEARCH OVERLAY ===== */
+    function openSearchOverlay() {
+      const overlay = document.getElementById('searchOverlay');
+      const input = document.getElementById('searchOverlayInput');
+      if (overlay) {
+        overlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        setTimeout(() => { if (input) input.focus(); }, 80);
+      }
+    }
+
+    function closeSearchOverlay() {
+      const overlay = document.getElementById('searchOverlay');
+      if (overlay) {
+        overlay.classList.remove('active');
+        document.body.style.overflow = '';
+        const input = document.getElementById('searchOverlayInput');
+        if (input) { input.value = ''; }
+        const sug = document.getElementById('searchOverlaySuggestions');
+        if (sug) { sug.style.display = 'none'; sug.innerHTML = ''; }
+      }
+    }
+
+    function handleOverlayClick(e) {
+      if (e.target.id === 'searchOverlay') closeSearchOverlay();
+    }
+
+    function handleOverlaySearch(query) {
+      const sug = document.getElementById('searchOverlaySuggestions');
+      if (!sug) return;
+      if (!query.trim()) { sug.style.display = 'none'; sug.innerHTML = ''; return; }
+      const results = PERFS.filter(p =>
+        (p.brand + ' ' + p.name).toLowerCase().includes(query.toLowerCase())
+      ).slice(0, 6);
+      if (!results.length) { sug.style.display = 'none'; sug.innerHTML = ''; return; }
+      sug.innerHTML = results.map(p => `
+        <div class="suggestion-item" onclick="closeSearchOverlay();openProduct(${p.id})"
+          style="display:flex;align-items:center;gap:12px;padding:12px 16px;cursor:pointer;border-bottom:1px solid #f1f5f9;"
+          onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background=''">
+          <img src="${p.img}" style="width:40px;height:40px;object-fit:cover;border-radius:8px;" />
+          <div>
+            <div style="font-weight:600;font-size:0.9rem;color:#0f172a">${p.brand} – ${p.name}</div>
+            <div style="font-size:0.78rem;color:#64748b">${p.type} · à partir de ${Math.min(...Object.values(p.prices))} DT</div>
+          </div>
+        </div>`).join('');
+      sug.style.display = 'block';
+    }
+
+    /* Show mobile search icon / hide on desktop */
+    function updateSearchBtnVisibility() {
+      const btn = document.getElementById('mobileSearchBtn');
+      if (!btn) return;
+      btn.style.display = window.innerWidth <= 768 ? 'inline-flex' : 'none';
+    }
+    window.addEventListener('resize', updateSearchBtnVisibility);
+    document.addEventListener('DOMContentLoaded', updateSearchBtnVisibility);
+    updateSearchBtnVisibility();
+
     const PERFS = [
       { id: 1, brand: "Boss", name: "Bottled Absolu", type: "Eau de Parfum", genre: "homme", prices: { 5: 27, 10: 50, 15: 65, 20: 100, 30: 150, full: 150 }, top: "Lavande, Bergamote", heart: "Cèdre, Bois de Gaïac", base: "Vanille, Benjoin", desc: "Boisé, intense et sophistiqué — Bottled Absolu incarne la nouvelle signature masculine de Boss.", badge: "Best-seller", stock: "dispo", c1: "#0f172a", c2: "#f97316", img: "Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Boss_bottled_absolu/Background.webp", gallery: ["Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Boss_bottled_absolu/Background.webp", "Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Boss_bottled_absolu/IMG_5088.JPG", "Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Boss_bottled_absolu/IMG_5089.JPG"] },
       { id: 2, brand: "Jean Paul Gaultier", name: "Le Beau Le Parfum", type: "Eau de Parfum", genre: "homme", prices: { 5: 27, 10: 50, 15: 70, 20: 100, 30: 150, full: 150 }, top: "Lavande, Orange", heart: "Fleur d’Oranger", base: "Vanille, Cèdre", desc: "Un parfum sensuel et boisé qui révèle la force douce d'un homme moderne.", badge: "Nouveau", stock: "dispo", c1: "#1f2937", c2: "#ea580c", img: "Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Jean_paul_gaultier_le_beau_le_parfum/Background_.webp", gallery: ["Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Jean_paul_gaultier_le_beau_le_parfum/Background_.webp", "Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Jean_paul_gaultier_le_beau_le_parfum/IMG_5100.webp", "Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Jean_paul_gaultier_le_beau_le_parfum/IMG_5101.webp", "Iris_page-20260419T024341Z-3-001/Iris_page/Homme/Jean_paul_gaultier_le_beau_le_parfum/IMG_5152.JPG"] },
