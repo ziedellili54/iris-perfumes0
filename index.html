@@ -2829,7 +2829,7 @@
       -webkit-text-fill-color: transparent;
       background-clip: text;
       text-shadow: none !important;
-      filter: none !important;
+      filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.8)) !important;
     }
 
     .carousel-slide.white-title .gr {
@@ -3420,7 +3420,12 @@
       .resp-flex-child { width: 100% !important; flex: none !important; box-sizing: border-box !important; }
       .resp-grid { grid-template-columns: 1fr !important; }
       .mbox, .mbg, #app-checkout-content, form, input, select { box-sizing: border-box; max-width: 100vw; overflow-x: hidden; }
-      .carousel-slide .htitle { font-size: clamp(1.5rem, 8vw, 3rem) !important; word-break: break-word; line-height: 1.2; }
+      .carousel-slide .htitle {
+        font-size: clamp(1.2rem, 5.5vw, 2.3rem) !important;
+        word-break: normal;
+        line-height: 1.2;
+        margin-bottom: 1.5rem;
+      }
     }
   </style>
 
