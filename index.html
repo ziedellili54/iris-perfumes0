@@ -4841,7 +4841,8 @@
     <div class="admin-controls" onclick="event.stopPropagation()" style="margin-top:0.8rem;">
       <div style="display:flex; gap:0.4rem; margin-bottom:0.5rem;">
         <button class="admin-btn toggle" onclick="toggleStock(${p.id})" style="flex:1; font-size:0.75rem;">${isRupture ? 'Rétablir Stock' : 'En Rupture'}</button>
-        <button class="admin-btn delete" onclick="removeProduct(${p.id})" style="background:#fee2e2; color:#ef4444; border-color:#fecaca; width:40px; display:flex; align-items:center; justify-content:center;">✕</button>
+        <button class="admin-btn edit" onclick="addProductPrompt(${p.id})" style="background:#f1f5f9; color:#0f172a; border-color:#cbd5e1; font-size:0.75rem; padding: 4px 10px; cursor:pointer; border-radius:6px; border:1px solid #cbd5e1; font-weight:700;">Modifier</button>
+        <button class="admin-btn delete" onclick="removeProduct(${p.id})" style="background:#fee2e2; color:#ef4444; border-color:#fecaca; width:40px; display:flex; align-items:center; justify-content:center; cursor:pointer;">✕</button>
       </div>
       <div style="margin-bottom:0.3rem;">
         <span style="font-size:0.7rem; color:#64748b; font-weight:700; display:block; margin-bottom:3px;">🏷️ Badge :</span>
@@ -4865,15 +4866,72 @@
       if (p) { p.badge = badge; saveProductOverrides(); renderGrid(); }
     }
 
-    function addProductPrompt() {
+    function addProductPrompt(editId) {
       document.getElementById('addProductModal').style.display = 'flex';
-      // Reset gallery to one empty URL row
+      const isEdit = typeof editId !== 'undefined' && editId !== null;
+      document.getElementById('apm_title_text').textContent = isEdit ? "✏️ Modifier le produit" : "➕ Ajouter un nouveau produit";
+      document.getElementById('apm_submit_btn').textContent = isEdit ? "✅ Enregistrer les modifications" : "✅ Ajouter le produit";
+      document.getElementById('apm_edit_id').value = isEdit ? editId : "";
+
+      if (isEdit) {
+        const p = PERFS.find(x => x.id === editId);
+        if (p) {
+          document.getElementById('apm_brand').value = p.brand || '';
+          document.getElementById('apm_name').value = p.name || '';
+          document.getElementById('apm_genre').value = p.genre || 'homme';
+          document.getElementById('apm_type').value = p.type || 'Eau de Parfum';
+          document.getElementById('apm_desc').value = p.desc || '';
+          document.getElementById('apm_top').value = p.top || '';
+          document.getElementById('apm_heart').value = p.heart || '';
+          document.getElementById('apm_base').value = p.base || '';
+          document.getElementById('apm_long_desc').value = p.longDesc || '';
+          
+          document.getElementById('apm_p5').value = p.prices[5] || '';
+          document.getElementById('apm_p10').value = p.prices[10] || '';
+          document.getElementById('apm_p15').value = p.prices[15] || '';
+          document.getElementById('apm_p20').value = p.prices[20] || '';
+          document.getElementById('apm_p30').value = p.prices[30] || '';
+          document.getElementById('apm_pfull').value = p.prices['full'] || '';
+          
+          document.getElementById('apm_badge').value = p.badge || '';
+          document.getElementById('apm_stock').value = p.stock || 'dispo';
+          
+          // Load gallery
+          document.getElementById('apm_gallery').innerHTML = '';
+          const gallery = p.gallery && p.gallery.length ? p.gallery : [p.img];
+          gallery.forEach((imgSrc, idx) => {
+            const inp = apmAddPhotoRow(idx === 0 ? 'URL photo principale' : 'URL photo supplémentaire', idx === 0);
+            inp.value = imgSrc;
+            if (imgSrc) apmShowPreview(inp, imgSrc);
+          });
+          return;
+        }
+      }
+      
+      // Default: Reset fields for add mode
+      document.getElementById('apm_brand').value = '';
+      document.getElementById('apm_name').value = '';
+      document.getElementById('apm_genre').value = 'homme';
+      document.getElementById('apm_type').value = 'Eau de Parfum';
+      document.getElementById('apm_desc').value = '';
+      document.getElementById('apm_top').value = '';
+      document.getElementById('apm_heart').value = '';
+      document.getElementById('apm_base').value = '';
+      document.getElementById('apm_long_desc').value = '';
+      document.getElementById('apm_p5').value = '';
+      document.getElementById('apm_p10').value = '';
+      document.getElementById('apm_p15').value = '';
+      document.getElementById('apm_p20').value = '';
+      document.getElementById('apm_p30').value = '';
+      document.getElementById('apm_pfull').value = '';
+      document.getElementById('apm_badge').value = '';
+      document.getElementById('apm_stock').value = 'dispo';
       document.getElementById('apm_gallery').innerHTML = '';
       apmAddPhotoRow('URL photo principale', true);
     }
+
     function closeAddProductModal() {
       document.getElementById('addProductModal').style.display = 'none';
-      // Clear file input so the same file can be re-selected next time
       const fi = document.getElementById('apm_file_input');
       if (fi) fi.value = '';
     }
@@ -4922,11 +4980,9 @@
         const reader = new FileReader();
         reader.onload = function(e) {
           const base64 = e.target.result;
-          // Find an empty URL input first, otherwise create a new row
           const emptyInputs = Array.from(container.querySelectorAll('.apm-img-url')).filter(i => !i.value.trim());
           if (emptyInputs.length > 0) {
             emptyInputs[0].value = base64;
-            // Show a small preview next to it
             apmShowPreview(emptyInputs[0], base64);
           } else {
             const newInp = apmAddPhotoRow('Photo depuis galerie', idx === 0 && container.querySelectorAll('.apm-img-url').length === 0);
@@ -4953,12 +5009,18 @@
     }
 
     function apmSubmit() {
+      const editIdVal = document.getElementById('apm_edit_id').value;
+      const editId = editIdVal ? Number(editIdVal) : null;
       const brand = document.getElementById('apm_brand').value.trim();
       const name  = document.getElementById('apm_name').value.trim();
       if (!brand || !name) { alert('Marque et nom sont obligatoires.'); return; }
       const genre = document.getElementById('apm_genre').value;
       const type  = document.getElementById('apm_type').value.trim() || 'Eau de Parfum';
       const desc  = document.getElementById('apm_desc').value.trim();
+      const top   = document.getElementById('apm_top').value.trim();
+      const heart = document.getElementById('apm_heart').value.trim();
+      const base  = document.getElementById('apm_base').value.trim();
+      const longDesc = document.getElementById('apm_long_desc').value.trim();
       const badge = document.getElementById('apm_badge').value;
       const stock = document.getElementById('apm_stock').value;
       const p5  = Number(document.getElementById('apm_p5').value)  || 0;
@@ -4966,21 +5028,52 @@
       const p15 = Number(document.getElementById('apm_p15').value) || 0;
       const p20 = Number(document.getElementById('apm_p20').value) || 0;
       const p30 = Number(document.getElementById('apm_p30').value) || 0;
+      const pfull = Number(document.getElementById('apm_pfull').value) || 0;
       const imgs = Array.from(document.querySelectorAll('#apm_gallery .apm-img-url')).map(i => i.value.trim()).filter(Boolean);
       const mainImg = imgs[0] || 'https://via.placeholder.com/400x400?text=Parfum';
-      const newId = Math.max(...PERFS.map(p => p.id), 100) + 1;
+      
       const prices = {};
       if (p5)  prices[5]  = p5;
       if (p10) prices[10] = p10;
       if (p15) prices[15] = p15;
       if (p20) prices[20] = p20;
       if (p30) prices[30] = p30;
+      if (pfull) prices['full'] = pfull;
       if (!Object.keys(prices).length) prices[5] = 0;
-      PERFS.push({ id: newId, brand, name, type, genre, prices, desc, badge, stock, c1: '#0f172a', c2: '#8b5cf6', img: mainImg, gallery: imgs.length ? imgs : [mainImg] });
+
+      if (editId !== null) {
+        // Edit Mode
+        const p = PERFS.find(x => x.id === editId);
+        if (p) {
+          p.brand = brand;
+          p.name = name;
+          p.genre = genre;
+          p.type = type;
+          p.desc = desc;
+          p.top = top;
+          p.heart = heart;
+          p.base = base;
+          p.longDesc = longDesc;
+          p.prices = prices;
+          p.badge = badge;
+          p.stock = stock;
+          p.img = mainImg;
+          p.gallery = imgs.length ? imgs : [mainImg];
+        }
+      } else {
+        // Add Mode
+        const newId = Math.max(...PERFS.map(p => p.id), 100) + 1;
+        PERFS.push({ id: newId, brand, name, type, genre, prices, desc, top, heart, base, longDesc, badge, stock, c1: '#0f172a', c2: '#8b5cf6', img: mainImg, gallery: imgs.length ? imgs : [mainImg] });
+      }
+
       saveProductOverrides();
       renderGrid();
+      if (editId !== null && window._mp && window._mp.id === editId) {
+        // Refresh product page if currently opened
+        renderProductPage(PERFS.find(x => x.id === editId));
+      }
       closeAddProductModal();
-      alert('Produit "' + brand + ' – ' + name + '" ajouté !');
+      alert(editId !== null ? 'Produit mis à jour !' : 'Produit ajouté !');
     }
 
     function removeProduct(id) {
@@ -6234,6 +6327,11 @@ Paiement   : ${payLabel}`;
         </div>
         <div class="resp-flex-child" style="width:380px;flex:0 0 380px;background:#fff;padding:20px;border-radius:12px;border:1px solid #e5e7eb; box-sizing: border-box;">
           <h2 style="font-family:var(--serif);font-size:1.4rem;margin:0 0 8px">${p.brand} - ${p.name}</h2>
+          ${localStorage.getItem('iris_is_admin') === 'true' ? `
+            <div style="margin-bottom: 12px;">
+              <button class="bp" onclick="addProductPrompt(${p.id})" style="padding: 5px 12px; font-size: 0.78rem; background: linear-gradient(135deg,#6c3fc5,#2563eb); font-weight:700;">✏️ Modifier les détails / prix / notes</button>
+            </div>
+          ` : ''}
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
             <div class="price" style="font-size:1.8rem;font-weight:900;color:var(--g)">${getPriceForSize(p, selectedSize)} DT</div>
             ${p.stock === 'rupture' ? '<div style="background:#fee2e2;padding:6px 10px;border-radius:8px;color:#b91c1c;font-weight:700">En rupture</div>' : '<div style="background:#ecfdf5;color:#065f46;padding:6px 10px;border-radius:8px;font-weight:700">En stock</div>'}
@@ -6726,7 +6824,8 @@ Paiement   : ${payLabel}`;
   <div id="addProductModal" onclick="if(event.target===this)closeAddProductModal()" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:99999; align-items:center; justify-content:center; padding:1rem; box-sizing:border-box;">
     <div style="background:#fff; border-radius:20px; max-width:540px; width:100%; max-height:90vh; overflow-y:auto; padding:2rem; position:relative; box-shadow:0 25px 60px rgba(0,0,0,0.2);">
       <button onclick="closeAddProductModal()" style="position:absolute; top:1rem; right:1rem; background:none; border:none; font-size:1.4rem; cursor:pointer; color:#94a3b8;">✕</button>
-      <h2 style="font-size:1.3rem; font-weight:800; color:#0f172a; margin-bottom:1.5rem;">➕ Ajouter un nouveau produit</h2>
+      <h2 id="apm_title_text" style="font-size:1.3rem; font-weight:800; color:#0f172a; margin-bottom:1.5rem;">➕ Ajouter un nouveau produit</h2>
+      <input type="hidden" id="apm_edit_id">
 
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.7rem; margin-bottom:0.7rem;">
         <div>
@@ -6752,18 +6851,40 @@ Paiement   : ${payLabel}`;
       </div>
 
       <div style="margin-bottom:0.7rem;">
-        <label style="font-size:0.8rem; font-weight:700; color:#475569; display:block; margin-bottom:4px;">Description</label>
-        <textarea id="apm_desc" rows="3" placeholder="Description du parfum..." style="width:100%; padding:0.6rem 0.8rem; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.9rem; box-sizing:border-box; resize:vertical;"></textarea>
+        <label style="font-size:0.8rem; font-weight:700; color:#475569; display:block; margin-bottom:4px;">Description Courte</label>
+        <textarea id="apm_desc" rows="2" placeholder="Description courte (apparaît sur la carte)..." style="width:100%; padding:0.6rem 0.8rem; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.9rem; box-sizing:border-box; resize:vertical;"></textarea>
+      </div>
+
+      <div style="margin-bottom:0.7rem;">
+        <label style="font-size:0.8rem; font-weight:700; color:#475569; display:block; margin-bottom:4px;">Description Longue (Optionnel)</label>
+        <textarea id="apm_long_desc" rows="3" placeholder="Description longue détaillée (sur la page produit)..." style="width:100%; padding:0.6rem 0.8rem; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.9rem; box-sizing:border-box; resize:vertical;"></textarea>
+      </div>
+
+      <!-- NOTES DE PARFUMS -->
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.5rem; margin-bottom:0.7rem;">
+        <div>
+          <label style="font-size:0.78rem; font-weight:700; color:#475569; display:block; margin-bottom:4px;">Notes de Tête</label>
+          <input id="apm_top" placeholder="Tête" style="width:100%; padding:0.5rem; border:1.5px solid #e2e8f0; border-radius:7px; font-size:0.82rem; box-sizing:border-box;">
+        </div>
+        <div>
+          <label style="font-size:0.78rem; font-weight:700; color:#475569; display:block; margin-bottom:4px;">Notes de Cœur</label>
+          <input id="apm_heart" placeholder="Cœur" style="width:100%; padding:0.5rem; border:1.5px solid #e2e8f0; border-radius:7px; font-size:0.82rem; box-sizing:border-box;">
+        </div>
+        <div>
+          <label style="font-size:0.78rem; font-weight:700; color:#475569; display:block; margin-bottom:4px;">Notes de Fond</label>
+          <input id="apm_base" placeholder="Fond" style="width:100%; padding:0.5rem; border:1.5px solid #e2e8f0; border-radius:7px; font-size:0.82rem; box-sizing:border-box;">
+        </div>
       </div>
 
       <div style="margin-bottom:0.7rem;">
         <label style="font-size:0.8rem; font-weight:700; color:#475569; display:block; margin-bottom:6px;">Prix par taille (TND)</label>
-        <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
-          <label style="font-size:0.78rem; color:#94a3b8;">5ml<br><input id="apm_p5"  type="number" min="0" placeholder="—" style="width:60px; padding:5px 7px; border:1.5px solid #e2e8f0; border-radius:7px; font-size:0.85rem;"></label>
-          <label style="font-size:0.78rem; color:#94a3b8;">10ml<br><input id="apm_p10" type="number" min="0" placeholder="—" style="width:60px; padding:5px 7px; border:1.5px solid #e2e8f0; border-radius:7px; font-size:0.85rem;"></label>
-          <label style="font-size:0.78rem; color:#94a3b8;">15ml<br><input id="apm_p15" type="number" min="0" placeholder="—" style="width:60px; padding:5px 7px; border:1.5px solid #e2e8f0; border-radius:7px; font-size:0.85rem;"></label>
-          <label style="font-size:0.78rem; color:#94a3b8;">20ml<br><input id="apm_p20" type="number" min="0" placeholder="—" style="width:60px; padding:5px 7px; border:1.5px solid #e2e8f0; border-radius:7px; font-size:0.85rem;"></label>
-          <label style="font-size:0.78rem; color:#94a3b8;">30ml<br><input id="apm_p30" type="number" min="0" placeholder="—" style="width:60px; padding:5px 7px; border:1.5px solid #e2e8f0; border-radius:7px; font-size:0.85rem;"></label>
+        <div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
+          <label style="font-size:0.75rem; color:#94a3b8;">5ml<br><input id="apm_p5"  type="number" min="0" placeholder="—" style="width:58px; padding:5px; border:1.5px solid #e2e8f0; border-radius:7px; font-size:0.8rem;"></label>
+          <label style="font-size:0.75rem; color:#94a3b8;">10ml<br><input id="apm_p10" type="number" min="0" placeholder="—" style="width:58px; padding:5px; border:1.5px solid #e2e8f0; border-radius:7px; font-size:0.8rem;"></label>
+          <label style="font-size:0.75rem; color:#94a3b8;">15ml<br><input id="apm_p15" type="number" min="0" placeholder="—" style="width:58px; padding:5px; border:1.5px solid #e2e8f0; border-radius:7px; font-size:0.8rem;"></label>
+          <label style="font-size:0.75rem; color:#94a3b8;">20ml<br><input id="apm_p20" type="number" min="0" placeholder="—" style="width:58px; padding:5px; border:1.5px solid #e2e8f0; border-radius:7px; font-size:0.8rem;"></label>
+          <label style="font-size:0.75rem; color:#94a3b8;">30ml<br><input id="apm_p30" type="number" min="0" placeholder="—" style="width:58px; padding:5px; border:1.5px solid #e2e8f0; border-radius:7px; font-size:0.8rem;"></label>
+          <label style="font-size:0.75rem; color:#94a3b8;">Flacon<br><input id="apm_pfull" type="number" min="0" placeholder="—" style="width:58px; padding:5px; border:1.5px solid #e2e8f0; border-radius:7px; font-size:0.8rem;"></label>
         </div>
       </div>
 
@@ -6802,7 +6923,7 @@ Paiement   : ${payLabel}`;
         <p style="font-size:0.72rem;color:#94a3b8;margin-top:4px;margin-bottom:0;">Vous pouvez saisir une URL ou choisir une image depuis votre appareil.</p>
       </div>
 
-      <button onclick="apmSubmit()" class="bp" style="width:100%; padding:0.9rem; font-size:1rem; font-weight:700;">✅ Ajouter le produit</button>
+      <button id="apm_submit_btn" onclick="apmSubmit()" class="bp" style="width:100%; padding:0.9rem; font-size:1rem; font-weight:700;">✅ Ajouter le produit</button>
     </div>
   </div>
 
