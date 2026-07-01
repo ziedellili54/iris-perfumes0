@@ -3446,21 +3446,7 @@
     <div class="float-el" style="left:70%;animation-delay:12s"></div>
     <div class="float-el" style="left:80%;animation-delay:14s"></div>
     <div class="float-el" style="left:90%;animation-delay:16s"></div>
-   <!-- PROMO BANNER -->
-  <div class="promo-banner" style="overflow: hidden; white-space: nowrap; display: flex; width: 100%;">
-    <div style="display: flex; flex-shrink: 0; animation: marquee-scroll 25s linear infinite; white-space: nowrap;">
-      <span style="display: inline-block; padding-right: 2rem;">✨ LIVRAISON GRATUITE : à partir de 20ml parfum designer &amp; 30ml parfum de niche ✨</span>
-      <span style="display: inline-block; padding-right: 2rem;">✨ LIVRAISON GRATUITE : à partir de 20ml parfum designer &amp; 30ml parfum de niche ✨</span>
-      <span style="display: inline-block; padding-right: 2rem;">✨ LIVRAISON GRATUITE : à partir de 20ml parfum designer &amp; 30ml parfum de niche ✨</span>
-      <span style="display: inline-block; padding-right: 2rem;">✨ LIVRAISON GRATUITE : à partir de 20ml parfum designer &amp; 30ml parfum de niche ✨</span>
-    </div>
-    <div style="display: flex; flex-shrink: 0; animation: marquee-scroll 25s linear infinite; white-space: nowrap;" aria-hidden="true">
-      <span style="display: inline-block; padding-right: 2rem;">✨ LIVRAISON GRATUITE : à partir de 20ml parfum designer &amp; 30ml parfum de niche ✨</span>
-      <span style="display: inline-block; padding-right: 2rem;">✨ LIVRAISON GRATUITE : à partir de 20ml parfum designer &amp; 30ml parfum de niche ✨</span>
-      <span style="display: inline-block; padding-right: 2rem;">✨ LIVRAISON GRATUITE : à partir de 20ml parfum designer &amp; 30ml parfum de niche ✨</span>
-      <span style="display: inline-block; padding-right: 2rem;">✨ LIVRAISON GRATUITE : à partir de 20ml parfum designer &amp; 30ml parfum de niche ✨</span>
-    </div>
-  </div>
+
   <style>
     @keyframes marquee-scroll {
       0% { transform: translateX(0); }
@@ -3509,6 +3495,22 @@
       </div>
     </div>
   </nav>
+
+  <!-- PROMO TICKER BAR -->
+  <div class="promo-banner" style="overflow:hidden;white-space:nowrap;display:flex;width:100%;position:relative;z-index:1000;">
+    <div style="display:flex;flex-shrink:0;animation:marquee-scroll 22s linear infinite;white-space:nowrap;">
+      <span style="display:inline-block;padding-right:3rem;">✨ Livraison Gratuite à partir de 20ml designer &nbsp;·&nbsp; 30ml niche &nbsp;·&nbsp; Paiement à la livraison ✨</span>
+      <span style="display:inline-block;padding-right:3rem;">✨ Livraison Gratuite à partir de 20ml designer &nbsp;·&nbsp; 30ml niche &nbsp;·&nbsp; Paiement à la livraison ✨</span>
+      <span style="display:inline-block;padding-right:3rem;">✨ Livraison Gratuite à partir de 20ml designer &nbsp;·&nbsp; 30ml niche &nbsp;·&nbsp; Paiement à la livraison ✨</span>
+      <span style="display:inline-block;padding-right:3rem;">✨ Livraison Gratuite à partir de 20ml designer &nbsp;·&nbsp; 30ml niche &nbsp;·&nbsp; Paiement à la livraison ✨</span>
+    </div>
+    <div style="display:flex;flex-shrink:0;animation:marquee-scroll 22s linear infinite;white-space:nowrap;" aria-hidden="true">
+      <span style="display:inline-block;padding-right:3rem;">✨ Livraison Gratuite à partir de 20ml designer &nbsp;·&nbsp; 30ml niche &nbsp;·&nbsp; Paiement à la livraison ✨</span>
+      <span style="display:inline-block;padding-right:3rem;">✨ Livraison Gratuite à partir de 20ml designer &nbsp;·&nbsp; 30ml niche &nbsp;·&nbsp; Paiement à la livraison ✨</span>
+      <span style="display:inline-block;padding-right:3rem;">✨ Livraison Gratuite à partir de 20ml designer &nbsp;·&nbsp; 30ml niche &nbsp;·&nbsp; Paiement à la livraison ✨</span>
+      <span style="display:inline-block;padding-right:3rem;">✨ Livraison Gratuite à partir de 20ml designer &nbsp;·&nbsp; 30ml niche &nbsp;·&nbsp; Paiement à la livraison ✨</span>
+    </div>
+  </div>
 
   <!-- SEARCH OVERLAY -->
   <div class="search-overlay" id="searchOverlay" onclick="handleOverlayClick(event)">
@@ -4780,20 +4782,91 @@
 
     function addProductPrompt() {
       document.getElementById('addProductModal').style.display = 'flex';
-      document.getElementById('apm_gallery').innerHTML = '<input type="text" placeholder="URL photo 1 (principale)" class="apm-img-url" style="width:100%;padding:0.6rem 0.8rem;border:1.5px solid #e2e8f0;border-radius:8px;font-size:0.9rem;box-sizing:border-box;margin-bottom:0.5rem;">';
+      // Reset gallery to one empty URL row
+      document.getElementById('apm_gallery').innerHTML = '';
+      apmAddPhotoRow('URL photo principale', true);
     }
     function closeAddProductModal() {
       document.getElementById('addProductModal').style.display = 'none';
+      // Clear file input so the same file can be re-selected next time
+      const fi = document.getElementById('apm_file_input');
+      if (fi) fi.value = '';
     }
-    function apmAddPhoto() {
+
+    // Creates one URL text-input row (with optional remove button)
+    function apmAddPhotoRow(placeholder, isFirst) {
       const container = document.getElementById('apm_gallery');
+      const wrap = document.createElement('div');
+      wrap.style.cssText = 'display:flex;align-items:center;gap:6px;margin-bottom:0.5rem;';
       const inp = document.createElement('input');
       inp.type = 'text';
-      inp.placeholder = 'URL photo supplémentaire';
+      inp.placeholder = placeholder || 'URL photo supplémentaire';
       inp.className = 'apm-img-url';
-      inp.style.cssText = 'width:100%;padding:0.6rem 0.8rem;border:1.5px solid #e2e8f0;border-radius:8px;font-size:0.9rem;box-sizing:border-box;margin-bottom:0.5rem;';
-      container.appendChild(inp);
+      inp.style.cssText = 'flex:1;padding:0.6rem 0.8rem;border:1.5px solid #e2e8f0;border-radius:8px;font-size:0.9rem;box-sizing:border-box;';
+      wrap.appendChild(inp);
+      if (!isFirst) {
+        const rm = document.createElement('button');
+        rm.textContent = '✕';
+        rm.title = 'Supprimer';
+        rm.style.cssText = 'background:none;border:none;color:#ef4444;font-size:1.1rem;cursor:pointer;flex-shrink:0;';
+        rm.onclick = () => wrap.remove();
+        wrap.appendChild(rm);
+      }
+      container.appendChild(wrap);
+      return inp;
     }
+
+    // + URL button
+    function apmAddPhoto() {
+      apmAddPhotoRow('URL photo supplémentaire', false);
+    }
+
+    // 📷 Gallery picker button – triggers native file picker
+    function apmOpenGallery() {
+      const fi = document.getElementById('apm_file_input');
+      fi.value = ''; // reset so same file triggers change event
+      fi.click();
+    }
+
+    // Called when files are selected from device gallery
+    function apmHandleFiles(input) {
+      const files = Array.from(input.files);
+      if (!files.length) return;
+      const container = document.getElementById('apm_gallery');
+      files.forEach((file, idx) => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const base64 = e.target.result;
+          // Find an empty URL input first, otherwise create a new row
+          const emptyInputs = Array.from(container.querySelectorAll('.apm-img-url')).filter(i => !i.value.trim());
+          if (emptyInputs.length > 0) {
+            emptyInputs[0].value = base64;
+            // Show a small preview next to it
+            apmShowPreview(emptyInputs[0], base64);
+          } else {
+            const newInp = apmAddPhotoRow('Photo depuis galerie', idx === 0 && container.querySelectorAll('.apm-img-url').length === 0);
+            newInp.value = base64;
+            apmShowPreview(newInp, base64);
+          }
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // Attaches a small thumbnail preview next to the input
+    function apmShowPreview(input, src) {
+      const wrap = input.closest('div');
+      if (!wrap) return;
+      let prev = wrap.querySelector('.apm-preview-img');
+      if (!prev) {
+        prev = document.createElement('img');
+        prev.className = 'apm-preview-img';
+        prev.style.cssText = 'width:40px;height:40px;object-fit:cover;border-radius:6px;flex-shrink:0;border:1.5px solid #e2e8f0;';
+        wrap.insertBefore(prev, wrap.firstChild);
+      }
+      prev.src = src;
+    }
+
     function apmSubmit() {
       const brand = document.getElementById('apm_brand').value.trim();
       const name  = document.getElementById('apm_name').value.trim();
@@ -6629,10 +6702,17 @@ Paiement   : ${payLabel}`;
         </div>
       </div>
 
+      <!-- Hidden file input for gallery picker -->
+      <input type="file" id="apm_file_input" accept="image/*" multiple style="display:none;" onchange="apmHandleFiles(this)">
+
       <div style="margin-bottom:1.2rem;">
-        <label style="font-size:0.8rem; font-weight:700; color:#475569; display:block; margin-bottom:6px;">Photos (URLs)</label>
+        <label style="font-size:0.8rem; font-weight:700; color:#475569; display:block; margin-bottom:6px;">📸 Photos du produit</label>
         <div id="apm_gallery"></div>
-        <button onclick="apmAddPhoto()" style="font-size:0.8rem; color:var(--p1); background:none; border:1px dashed var(--p1); border-radius:8px; padding:5px 14px; cursor:pointer; margin-top:4px;">+ Ajouter une photo</button>
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:6px;">
+          <button onclick="apmAddPhoto()" style="font-size:0.8rem; color:var(--p1); background:none; border:1px dashed var(--p1); border-radius:8px; padding:5px 14px; cursor:pointer;">+ URL</button>
+          <button onclick="apmOpenGallery()" style="font-size:0.8rem; color:#fff; background:linear-gradient(135deg,#6c3fc5,#2563eb); border:none; border-radius:8px; padding:5px 14px; cursor:pointer; font-weight:600;">📷 Choisir depuis la galerie</button>
+        </div>
+        <p style="font-size:0.72rem;color:#94a3b8;margin-top:4px;margin-bottom:0;">Vous pouvez saisir une URL ou choisir une image depuis votre appareil.</p>
       </div>
 
       <button onclick="apmSubmit()" class="bp" style="width:100%; padding:0.9rem; font-size:1rem; font-weight:700;">✅ Ajouter le produit</button>
