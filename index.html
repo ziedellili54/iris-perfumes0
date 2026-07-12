@@ -224,10 +224,16 @@
     /* COLLECTION BANNERS (LANDING PAGE) */
     .collection-banners {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      grid-template-columns: repeat(3, 1fr);
       gap: 1.5rem;
       padding: 2rem 5%;
       background: #fff;
+    }
+
+    @media (max-width: 768px) {
+      .collection-banners {
+        grid-template-columns: 1fr;
+      }
     }
 
     .banner-box {
@@ -3607,7 +3613,7 @@
         </div>
         <div style="grid-column: 1 / -1; display:grid; grid-template-columns: 1fr; gap: 1.5rem;">
           <div class="banner-box"
-            style="height:120px; background:linear-gradient(45deg, var(--p1), var(--p2)); justify-content:center; text-align:center;"
+            style="height:150px; aspect-ratio:auto; width:100%; background:linear-gradient(45deg, var(--p1), var(--p2)); justify-content:center; text-align:center;"
             onclick="showCollection('new')">
             <div class="banner-overlay"
               style="width:100%; color:#fff; align-items:center; padding:0; background:transparent !important;">
