@@ -223,8 +223,8 @@
 
     /* COLLECTION BANNERS (LANDING PAGE) */
     .collection-banners {
-      display: flex;
-      flex-direction: column;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
       gap: 1.5rem;
       padding: 2rem 5%;
       background: #fff;
@@ -232,7 +232,7 @@
 
     .banner-box {
       position: relative;
-      height: 300px;
+      aspect-ratio: 1 / 1;
       border-radius: 16px;
       overflow: hidden;
       cursor: pointer;
@@ -3605,7 +3605,7 @@
             <button onclick="event.stopPropagation();openBannerEdit('niche')" style="background:rgba(108,63,197,0.92);color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:0.82rem;font-weight:700;cursor:pointer;backdrop-filter:blur(4px);">&#9998; Modifier</button>
           </div>
         </div>
-        <div style="display:grid; grid-template-columns: 1fr; gap: 1.5rem;">
+        <div style="grid-column: 1 / -1; display:grid; grid-template-columns: 1fr; gap: 1.5rem;">
           <div class="banner-box"
             style="height:120px; background:linear-gradient(45deg, var(--p1), var(--p2)); justify-content:center; text-align:center;"
             onclick="showCollection('new')">
@@ -7247,6 +7247,256 @@ Paiement   : ${payLabel}`;
     </div>
   </div>
 
+  <!-- ====== ADMIN LOGIN MODAL ====== -->
+  <div id="adminLoginModal" onclick="if(event.target===this)document.getElementById('adminLoginModal').style.display='none'" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:999999; align-items:center; justify-content:center; padding:1rem; box-sizing:border-box; backdrop-filter: blur(5px);">
+    <div style="background:#fff; border-radius:24px; max-width:400px; width:100%; padding:2.5rem; position:relative; box-shadow:0 25px 60px rgba(0,0,0,0.3); text-align:center;">
+      <button onclick="document.getElementById('adminLoginModal').style.display='none'" style="position:absolute; top:1.2rem; right:1.2rem; background:none; border:none; font-size:1.5rem; cursor:pointer; color:#94a3b8;">&times;</button>
+      <h2 style="font-size:1.6rem; font-weight:800; color:#0f172a; margin-bottom:0.5rem; font-family:var(--serif);">Administration</h2>
+      <p style="font-size:0.9rem; color:#64748b; margin-bottom:2rem; font-family:var(--sans);">Connectez-vous pour modifier le site</p>
+      
+      <div style="text-align:left; margin-bottom:1.2rem;">
+        <label style="font-size:0.85rem; font-weight:700; color:#475569; display:block; margin-bottom:6px;">Adresse e-mail</label>
+        <input type="email" id="adminEmail" placeholder="admin@iris.com" style="width:100%; padding:0.8rem 1rem; border:1.5px solid #e2e8f0; border-radius:12px; font-size:1rem; box-sizing:border-box; outline:none; transition:border-color 0.3s;" onfocus="this.style.borderColor='var(--p1)'" onblur="this.style.borderColor='#e2e8f0'">
+      </div>
+      
+      <div style="text-align:left; margin-bottom:2rem;">
+        <label style="font-size:0.85rem; font-weight:700; color:#475569; display:block; margin-bottom:6px;">Mot de passe</label>
+        <input type="password" id="adminPassword" placeholder="••••••••" style="width:100%; padding:0.8rem 1rem; border:1.5px solid #e2e8f0; border-radius:12px; font-size:1rem; box-sizing:border-box; outline:none; transition:border-color 0.3s;" onfocus="this.style.borderColor='var(--p1)'" onblur="this.style.borderColor='#e2e8f0'">
+      </div>
+      
+      <button id="loginBtn" style="width:100%; padding:1rem; font-size:1.05rem; font-weight:800; background:linear-gradient(135deg, var(--p1), var(--p2)); color:white; border:none; border-radius:12px; cursor:pointer; box-shadow:0 8px 20px rgba(108,63,197,0.3); transition:all 0.3s;">
+        Se connecter
+      </button>
+      <p id="loginError" style="color:#ef4444; font-size:0.85rem; margin-top:1rem; display:none;"></p>
+    </div>
+  </div>
+  
+  <!-- ADMIN SAVE TO GITHUB MODAL -->
+  <div id="githubSaveModal" onclick="if(event.target===this)document.getElementById('githubSaveModal').style.display='none'" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:999999; align-items:center; justify-content:center; padding:1rem; box-sizing:border-box; backdrop-filter: blur(5px);">
+    <div style="background:#fff; border-radius:24px; max-width:450px; width:100%; padding:2.5rem; position:relative; box-shadow:0 25px 60px rgba(0,0,0,0.3); text-align:center;">
+      <button onclick="document.getElementById('githubSaveModal').style.display='none'" style="position:absolute; top:1.2rem; right:1.2rem; background:none; border:none; font-size:1.5rem; cursor:pointer; color:#94a3b8;">&times;</button>
+      <h2 style="font-size:1.4rem; font-weight:800; color:#0f172a; margin-bottom:1rem;">Sauvegarder sur GitHub</h2>
+      <p style="font-size:0.9rem; color:#64748b; margin-bottom:1.5rem; text-align:left;">Pour publier vos modifications en direct, veuillez entrer votre GitHub Personal Access Token (PAT).</p>
+      <input type="password" id="githubToken" placeholder="ghp_xxxxxxxxxxxx" style="width:100%; padding:0.8rem 1rem; border:1.5px solid #e2e8f0; border-radius:12px; font-size:1rem; box-sizing:border-box; margin-bottom:1.5rem;">
+      <button id="saveToGithubBtn" style="width:100%; padding:1rem; font-size:1.05rem; font-weight:800; background:#10b981; color:white; border:none; border-radius:12px; cursor:pointer; box-shadow:0 8px 20px rgba(16, 185, 129,0.3);">
+        Publier les modifications
+      </button>
+      <p id="githubStatus" style="font-size:0.9rem; margin-top:1rem; font-weight:700;"></p>
+    </div>
+  </div>
+
+  <!-- FLOATING ADMIN BAR -->
+  <div id="adminBar" style="display:none; position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:rgba(15, 23, 42, 0.95); color:white; padding:12px 24px; border-radius:99px; z-index:99999; align-items:center; gap:15px; box-shadow:0 10px 30px rgba(0,0,0,0.4); backdrop-filter:blur(10px); border:1px solid rgba(255,255,255,0.1);">
+    <span style="font-size:0.9rem; font-weight:700;">Mode Édition Activé</span>
+    <button id="adminSaveBtn" style="background:#10b981; color:white; border:none; border-radius:99px; padding:6px 16px; font-size:0.85rem; font-weight:800; cursor:pointer;">💾 Sauvegarder (GitHub)</button>
+    <button id="adminTokenBtn" style="background:rgba(255,255,255,0.15); color:white; border:none; border-radius:99px; padding:6px 16px; font-size:0.85rem; font-weight:600; cursor:pointer;">🔑 Token GitHub</button>
+    <button id="logoutBtn" style="background:rgba(255,255,255,0.1); color:white; border:none; border-radius:99px; padding:6px 16px; font-size:0.85rem; font-weight:600; cursor:pointer;">Déconnexion</button>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAc4bNPwNL-68tNxM-ssGIhYCy7Q2NJU6A",
+      authDomain: "iris-perfumes-77a4d.firebaseapp.com",
+      projectId: "iris-perfumes-77a4d",
+      storageBucket: "iris-perfumes-77a4d.firebasestorage.app",
+      messagingSenderId: "843950031816",
+      appId: "1:843950031816:web:6de241b5efa097ceb5b6fd",
+      databaseURL: "https://iris-perfumes-77a4d-default-rtdb.firebaseio.com"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    let githubToken = "";
+
+    // Provide a global function to open login modal (e.g. from footer)
+    window.openAdminLogin = () => {
+      document.getElementById('adminLoginModal').style.display = 'flex';
+    };
+
+    // Toggle ContentEditable based on auth state
+    function enableEditMode(enabled) {
+      document.getElementById('adminBar').style.display = enabled ? 'flex' : 'none';
+      document.getElementById('carousel-add-btn').style.display = enabled ? 'flex' : 'none';
+      
+      const banners = ['banner-homme-admin', 'banner-femme-admin', 'banner-niche-admin'];
+      banners.forEach(id => {
+        if(document.getElementById(id)) document.getElementById(id).style.display = enabled ? 'block' : 'none';
+      });
+
+      // Enable text editing for all titles and descriptions
+      const editables = document.querySelectorAll('.stitle, .ssub, .btitle, .bsub, .pnm');
+      editables.forEach(el => {
+        if(enabled) {
+          el.setAttribute('contenteditable', 'true');
+          el.style.border = '1px dashed rgba(108,63,197,0.5)';
+          el.style.padding = '2px';
+          el.style.borderRadius = '4px';
+        } else {
+          el.removeAttribute('contenteditable');
+          el.style.border = 'none';
+          el.style.padding = '0';
+        }
+      });
+    }
+
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        enableEditMode(true);
+        // Load GitHub token from database
+        try {
+          const snapshot = await get(ref(db, 'settings/githubToken'));
+          if (snapshot.exists()) {
+            githubToken = snapshot.val();
+            document.getElementById('githubToken').value = githubToken;
+          }
+        } catch (e) {
+          console.error("Failed to load GitHub token from Firebase:", e);
+        }
+      } else {
+        enableEditMode(false);
+        githubToken = "";
+        document.getElementById('githubToken').value = "";
+      }
+    });
+
+    document.getElementById('loginBtn').addEventListener('click', () => {
+      const email = document.getElementById('adminEmail').value;
+      const pass = document.getElementById('adminPassword').value;
+      const errEl = document.getElementById('loginError');
+      errEl.style.display = 'none';
+
+      signInWithEmailAndPassword(auth, email, pass)
+        .then(() => {
+          document.getElementById('adminLoginModal').style.display = 'none';
+        })
+        .catch((error) => {
+          errEl.textContent = "Erreur: " + error.message;
+          errEl.style.display = 'block';
+        });
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      signOut(auth);
+    });
+
+    // GitHub Save Trigger
+    document.getElementById('adminSaveBtn').addEventListener('click', async () => {
+      if (!githubToken) {
+        document.getElementById('githubSaveModal').style.display = 'flex';
+        document.getElementById('githubStatus').textContent = "Veuillez entrer votre jeton GitHub pour l'enregistrer.";
+        document.getElementById('githubStatus').style.color = "#0f172a";
+      } else {
+        if (confirm("Voulez-vous enregistrer et publier toutes les modifications sur GitHub ?")) {
+          await pushToGithub(githubToken);
+        }
+      }
+    });
+
+    // Token Management Trigger
+    document.getElementById('adminTokenBtn').addEventListener('click', () => {
+      document.getElementById('githubSaveModal').style.display = 'flex';
+      document.getElementById('githubToken').value = githubToken || "";
+      document.getElementById('githubStatus').textContent = githubToken ? "Le token actuel est pré-rempli." : "";
+      document.getElementById('githubStatus').style.color = "#475569";
+    });
+
+    // GitHub Push Logic
+    document.getElementById('saveToGithubBtn').addEventListener('click', async () => {
+      const token = document.getElementById('githubToken').value.trim();
+      const statusEl = document.getElementById('githubStatus');
+      if(!token) {
+        statusEl.textContent = "Veuillez entrer un token !";
+        statusEl.style.color = "#ef4444";
+        return;
+      }
+
+      // Try to save token to database
+      try {
+        statusEl.textContent = "Enregistrement du jeton dans Firebase...";
+        statusEl.style.color = "#0f172a";
+        await set(ref(db, 'settings/githubToken'), token);
+        githubToken = token;
+      } catch (err) {
+        console.error("Failed to save token to database:", err);
+        statusEl.textContent = "⚠️ Sauvegarde du jeton dans Firebase impossible. Poursuite de la publication...";
+        statusEl.style.color = "#d97706";
+      }
+
+      await pushToGithub(token);
+    });
+
+    async function pushToGithub(token) {
+      const statusEl = document.getElementById('githubStatus');
+      document.getElementById('githubSaveModal').style.display = 'flex';
+      statusEl.textContent = "Préparation de la sauvegarde...";
+      statusEl.style.color = "#0f172a";
+
+      try {
+        // Clean up editor UI before saving
+        enableEditMode(false);
+        const htmlContent = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+        enableEditMode(true); // Re-enable for the user
+
+        const owner = "ziedellili54";
+        const repo = "iris-perfumes0";
+        const path = "index.html";
+        
+        statusEl.textContent = "Récupération du fichier actuel...";
+        
+        // 1. Get file SHA
+        const getRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
+          headers: { "Authorization": `token ${token}` }
+        });
+        
+        let sha = "";
+        if (getRes.ok) {
+          const data = await getRes.json();
+          sha = data.sha;
+        }
+
+        statusEl.textContent = "Envoi de la mise à jour...";
+
+        // 2. Put file
+        const base64Content = btoa(unescape(encodeURIComponent(htmlContent)));
+        
+        const putRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
+          method: 'PUT',
+          headers: {
+            "Authorization": `token ${token}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            message: "Mise à jour via l'éditeur admin en ligne",
+            content: base64Content,
+            sha: sha
+          })
+        });
+
+        if (putRes.ok) {
+          statusEl.textContent = "✅ Sauvegarde réussie sur GitHub ! Les changements seront en ligne d'ici 1-2 minutes.";
+          statusEl.style.color = "#10b981";
+          setTimeout(() => {
+            document.getElementById('githubSaveModal').style.display = 'none';
+          }, 2500);
+        } else {
+          const errorData = await putRes.json();
+          statusEl.textContent = "❌ Erreur: " + errorData.message;
+          statusEl.style.color = "#ef4444";
+        }
+      } catch (e) {
+        statusEl.textContent = "❌ Erreur: " + e.message;
+        statusEl.style.color = "#ef4444";
+        enableEditMode(true);
+      }
+    }
+
+  </script>
 </body>
 
 </html>
