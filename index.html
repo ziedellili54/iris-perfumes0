@@ -7330,12 +7330,12 @@ Paiement   : ${payLabel}`;
       
       <div style="text-align:left; margin-bottom:1.2rem;">
         <label style="font-size:0.85rem; font-weight:700; color:#475569; display:block; margin-bottom:6px;">Adresse e-mail</label>
-        <input type="email" id="adminEmail" placeholder="admin@iris.com" style="width:100%; padding:0.8rem 1rem; border:1.5px solid #e2e8f0; border-radius:12px; font-size:1rem; box-sizing:border-box; outline:none; transition:border-color 0.3s;" onfocus="this.style.borderColor='var(--p1)'" onblur="this.style.borderColor='#e2e8f0'">
+        <input type="email" id="adminEmail" placeholder="admin@iris.com" style="width:100%; padding:0.8rem 1rem; border:1.5px solid #e2e8f0; border-radius:12px; font-size:1rem; box-sizing:border-box; outline:none; transition:border-color 0.3s;" onfocus="this.style.borderColor='var(--p1)'" onblur="this.style.borderColor='#e2e8f0'" onkeypress="if(event.key==='Enter') document.getElementById('loginBtn').click()">
       </div>
       
       <div style="text-align:left; margin-bottom:2rem;">
         <label style="font-size:0.85rem; font-weight:700; color:#475569; display:block; margin-bottom:6px;">Mot de passe</label>
-        <input type="password" id="adminPassword" placeholder="••••••••" style="width:100%; padding:0.8rem 1rem; border:1.5px solid #e2e8f0; border-radius:12px; font-size:1rem; box-sizing:border-box; outline:none; transition:border-color 0.3s;" onfocus="this.style.borderColor='var(--p1)'" onblur="this.style.borderColor='#e2e8f0'">
+        <input type="password" id="adminPassword" placeholder="••••••••" style="width:100%; padding:0.8rem 1rem; border:1.5px solid #e2e8f0; border-radius:12px; font-size:1rem; box-sizing:border-box; outline:none; transition:border-color 0.3s;" onfocus="this.style.borderColor='var(--p1)'" onblur="this.style.borderColor='#e2e8f0'" onkeypress="if(event.key==='Enter') document.getElementById('loginBtn').click()">
       </div>
       
       <button id="loginBtn" style="width:100%; padding:1rem; font-size:1.05rem; font-weight:800; background:linear-gradient(135deg, var(--p1), var(--p2)); color:white; border:none; border-radius:12px; cursor:pointer; box-shadow:0 8px 20px rgba(108,63,197,0.3); transition:all 0.3s;">
@@ -7473,22 +7473,43 @@ Paiement   : ${payLabel}`;
       }
     });
 
-    document.getElementById('loginBtn').addEventListener('click', () => {
-      const email = document.getElementById('adminEmail').value;
-      const pass = document.getElementById('adminPassword').value;
-      const errEl = document.getElementById('loginError');
-      errEl.style.display = 'none';
-
-      signInWithEmailAndPassword(auth, email, pass)
-        .then(() => {
-          document.getElementById('adminLoginModal').style.display = 'none';
-          // Set URL to /admin after successful login
-          window.history.replaceState({}, '', '/iris-perfumes0/admin');
-        })
-        .catch((error) => {
-          errEl.textContent = "Erreur: " + error.message;
+    // ====== ADMIN LOGIN BUTTON HANDLER ======
+    const adminLoginBtn = document.getElementById('loginBtn');
+    if (adminLoginBtn) {
+      adminLoginBtn.addEventListener('click', (e) => {
+        e.preventDefault(); // Prevent any default action
+        
+        const email = document.getElementById('adminEmail').value.trim();
+        const pass = document.getElementById('adminPassword').value;
+        const errEl = document.getElementById('loginError');
+        errEl.style.display = 'none';
+        
+        // Validate inputs
+        if (!email || !pass) {
+          errEl.textContent = "Veuillez remplir tous les champs";
           errEl.style.display = 'block';
-        });
+          return;
+        }
+
+        // Disable button during login
+        adminLoginBtn.disabled = true;
+        adminLoginBtn.textContent = 'Connexion...';
+
+        signInWithEmailAndPassword(auth, email, pass)
+          .then(() => {
+            // Success - modal will close and URL will change in onAuthStateChanged
+            document.getElementById('adminLoginModal').style.display = 'none';
+            adminLoginBtn.disabled = false;
+            adminLoginBtn.textContent = 'Se connecter';
+          })
+          .catch((error) => {
+            errEl.textContent = "Erreur: " + error.message;
+            errEl.style.display = 'block';
+            adminLoginBtn.disabled = false;
+            adminLoginBtn.textContent = 'Se connecter';
+          });
+      });
+    }
     });
 
     document.getElementById('logoutBtn').addEventListener('click', () => {
@@ -7624,8 +7645,8 @@ Paiement   : ${payLabel}`;
       
       if (hash === '#admin') {
         // Close user login if open
-        closeLoginOverlay();
-        // Open admin login
+        if (typeof closeLoginOverlay === 'function') closeLoginOverlay();
+        // Open admin login ONLY if not already logged in
         if (!auth.currentUser) {
           document.getElementById('adminLoginModal').style.display = 'flex';
         }
@@ -7635,9 +7656,9 @@ Paiement   : ${payLabel}`;
         // Open user login
         const user = JSON.parse(localStorage.getItem('iris_user') || 'null');
         if (!user) {
-          openLogin();
+          if (typeof openLogin === 'function') openLogin();
         } else {
-          showUserDashboard();
+          if (typeof showUserDashboard === 'function') showUserDashboard();
         }
       }
     });
@@ -7649,7 +7670,7 @@ Paiement   : ${payLabel}`;
       
       // Admin access via /admin path or #admin hash
       if (path.includes('/admin') || hash === '#admin') {
-        // Open admin login immediately
+        // Open admin login immediately ONLY if not logged in
         setTimeout(() => {
           if (!auth.currentUser) {
             document.getElementById('adminLoginModal').style.display = 'flex';
@@ -7662,10 +7683,10 @@ Paiement   : ${payLabel}`;
         setTimeout(() => {
           const user = JSON.parse(localStorage.getItem('iris_user') || 'null');
           if (!user) {
-            openLogin();
+            if (typeof openLogin === 'function') openLogin();
           } else {
             // Already logged in, go to dashboard
-            showUserDashboard();
+            if (typeof showUserDashboard === 'function') showUserDashboard();
           }
         }, 500);
       }
@@ -7680,16 +7701,19 @@ Paiement   : ${payLabel}`;
       window.location.hash = '#login';
     };
     
-    // Close admin modal when clicking outside
-    document.getElementById('adminLoginModal').addEventListener('click', (e) => {
-      if (e.target.id === 'adminLoginModal') {
-        document.getElementById('adminLoginModal').style.display = 'none';
-        // If admin tried to access but closed, go back to home
-        if (window.location.pathname.includes('/admin') || window.location.hash === '#admin') {
-          window.location.href = '/iris-perfumes0/';
+    // Close admin modal when clicking close button or outside
+    const adminModal = document.getElementById('adminLoginModal');
+    if (adminModal) {
+      adminModal.addEventListener('click', (e) => {
+        if (e.target.id === 'adminLoginModal') {
+          adminModal.style.display = 'none';
+          // Clear the hash when modal is closed without login
+          if (!auth.currentUser && window.location.hash === '#admin') {
+            window.history.replaceState({}, '', '/iris-perfumes0/');
+          }
         }
-      }
-    });
+      });
+    }
 
   </script>
 </body>
