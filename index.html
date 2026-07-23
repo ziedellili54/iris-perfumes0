@@ -7421,27 +7421,46 @@ Paiement   : ${payLabel}`;
 
     onAuthStateChanged(auth, async (user) => {
       if (user) {
-        // ── Sync iris_is_admin flag so all existing UI code (renderGrid etc.) sees admin state ──
-        localStorage.setItem('iris_is_admin', 'true');
-        enableEditMode(true);
-        // Refresh all admin-aware UI
-        if (typeof renderGrid === 'function') renderGrid();
-        if (typeof renderCommandesGallery === 'function') renderCommandesGallery();
-        if (typeof applyCollectionBanners === 'function') applyCollectionBanners();
-        if (typeof renderCarousel === 'function') renderCarousel();
-        if (typeof updateNav === 'function') updateNav();
-        // Load GitHub token from Firebase database
-        try {
-          const snapshot = await get(ref(db, 'settings/githubToken'));
-          if (snapshot.exists()) {
-            githubToken = snapshot.val();
-            document.getElementById('githubToken').value = githubToken;
+        // Check if user is actually an admin by verifying their email or role
+        // Only enable admin mode if the logged-in user is an actual administrator
+        const adminEmail = 'irisperfumes2025@gmail.com'; // Your admin email
+        
+        if (user.email === adminEmail) {
+          // ── This is an admin user ──
+          localStorage.setItem('iris_is_admin', 'true');
+          enableEditMode(true);
+          
+          // Change URL to /admin if not already there
+          if (!window.location.pathname.includes('/admin')) {
+            window.history.replaceState({}, '', '/iris-perfumes0/admin');
           }
-        } catch (e) {
-          console.error("Failed to load GitHub token from Firebase:", e);
+          
+          // Refresh all admin-aware UI
+          if (typeof renderGrid === 'function') renderGrid();
+          if (typeof renderCommandesGallery === 'function') renderCommandesGallery();
+          if (typeof applyCollectionBanners === 'function') applyCollectionBanners();
+          if (typeof renderCarousel === 'function') renderCarousel();
+          if (typeof updateNav === 'function') updateNav();
+          
+          // Load GitHub token from Firebase database
+          try {
+            const snapshot = await get(ref(db, 'settings/githubToken'));
+            if (snapshot.exists()) {
+              githubToken = snapshot.val();
+              document.getElementById('githubToken').value = githubToken;
+            }
+          } catch (e) {
+            console.error("Failed to load GitHub token from Firebase:", e);
+          }
+        } else {
+          // ── Regular user (not admin) ──
+          // Do NOT enable admin mode
+          localStorage.removeItem('iris_is_admin');
+          enableEditMode(false);
+          console.log('User logged in but not an admin:', user.email);
         }
       } else {
-        // ── Clear admin flag and refresh all UI ──
+        // ── No user logged in ──
         localStorage.removeItem('iris_is_admin');
         enableEditMode(false);
         githubToken = "";
@@ -7463,6 +7482,8 @@ Paiement   : ${payLabel}`;
       signInWithEmailAndPassword(auth, email, pass)
         .then(() => {
           document.getElementById('adminLoginModal').style.display = 'none';
+          // Set URL to /admin after successful login
+          window.history.replaceState({}, '', '/iris-perfumes0/admin');
         })
         .catch((error) => {
           errEl.textContent = "Erreur: " + error.message;
@@ -7474,9 +7495,12 @@ Paiement   : ${payLabel}`;
       signOut(auth).then(() => {
         // iris_is_admin cleared by onAuthStateChanged, but also clear user session
         localStorage.removeItem('iris_is_admin');
+        
+        // Redirect to /admin login page after logout
+        window.location.href = '/iris-perfumes0/#admin';
+        
         if (typeof renderGrid === 'function') renderGrid();
         if (typeof updateNav === 'function') updateNav();
-        if (typeof goHome === 'function') goHome();
       });
     });
 
@@ -7655,6 +7679,17 @@ Paiement   : ${payLabel}`;
     window.goToUserLogin = () => {
       window.location.hash = '#login';
     };
+    
+    // Close admin modal when clicking outside
+    document.getElementById('adminLoginModal').addEventListener('click', (e) => {
+      if (e.target.id === 'adminLoginModal') {
+        document.getElementById('adminLoginModal').style.display = 'none';
+        // If admin tried to access but closed, go back to home
+        if (window.location.pathname.includes('/admin') || window.location.hash === '#admin') {
+          window.location.href = '/iris-perfumes0/';
+        }
+      }
+    });
 
   </script>
 </body>
