@@ -4256,8 +4256,8 @@
             </div>
 
             <div style="text-align: center; margin-bottom: 3rem;">
-              <!-- USER BADGE -->
-              <div style="display:inline-block; background:linear-gradient(135deg,#10b981,#059669); color:#fff; padding:0.4rem 1.5rem; border-radius:99px; font-size:0.75rem; font-weight:900; letter-spacing:1px; margin-bottom:1rem; box-shadow:0 4px 15px rgba(16,185,129,0.4);">
+              <!-- USER/ADMIN BADGE - Changes based on context -->
+              <div id="loginBadge" style="display:inline-block; background:linear-gradient(135deg,#10b981,#059669); color:#fff; padding:0.4rem 1.5rem; border-radius:99px; font-size:0.75rem; font-weight:900; letter-spacing:1px; margin-bottom:1rem; box-shadow:0 4px 15px rgba(16,185,129,0.4);">
                 👤 ESPACE CLIENT
               </div>
               <img src="logo/iris_logo_fini_3.webp" alt="Iris Perfumes"
@@ -5894,6 +5894,13 @@ Paiement   : ${payLabel}`;
       if (user) {
         return showUserDashboard();
       }
+      
+      // Clear search bar
+      const searchInput = document.getElementById('searchInput');
+      const searchOverlayInput = document.getElementById('searchOverlayInput');
+      if (searchInput) searchInput.value = '';
+      if (searchOverlayInput) searchOverlayInput.value = '';
+      
       // Show login overlay (modal on top of current page)
       const overlay = document.getElementById('login-overlay');
       if (overlay) {
@@ -5907,6 +5914,20 @@ Paiement   : ${payLabel}`;
       const appLoginContent = document.getElementById('app-login-content');
       if (appLoginContent) {
         appLoginContent.style.display = 'block';
+      }
+
+      // Update badge based on whether we're in admin context
+      const isAdminPath = window.location.pathname.includes('/admin') || window.location.hash === '#admin';
+      const badge = document.getElementById('loginBadge');
+      
+      if (badge) {
+        if (isAdminPath) {
+          badge.style.background = 'linear-gradient(135deg,#ef4444,#dc2626)';
+          badge.innerHTML = '🔐 ESPACE ADMIN';
+        } else {
+          badge.style.background = 'linear-gradient(135deg,#10b981,#059669)';
+          badge.innerHTML = '👤 ESPACE CLIENT';
+        }
       }
 
       // Reset to login mode
@@ -6160,6 +6181,13 @@ Paiement   : ${payLabel}`;
           lb.title = 'Connexion';
         }
       }
+      
+      // IMPORTANT: Clear search input - do NOT show email there
+      const searchInput = document.getElementById('searchInput');
+      if (searchInput && searchInput.value && searchInput.value.includes('@')) {
+        searchInput.value = '';
+      }
+      
       // Show/hide admin badge
       const isAdmin = localStorage.getItem('iris_is_admin') === 'true';
       const badge = document.getElementById('adminBadge');
@@ -6345,7 +6373,20 @@ Paiement   : ${payLabel}`;
       alert('Vous êtes déconnecté.');
     }
 
-    window.addEventListener('load', () => { updateNav(); renderGrid(); });
+    window.addEventListener('load', () => { 
+      updateNav(); 
+      renderGrid();
+      
+      // Clear search input on load to prevent email showing
+      const searchInput = document.getElementById('searchInput');
+      if (searchInput) {
+        searchInput.value = '';
+      }
+      const searchOverlayInput = document.getElementById('searchOverlayInput');
+      if (searchOverlayInput) {
+        searchOverlayInput.value = '';
+      }
+    });
 
     // Attach cart nav opener
     window.addEventListener('load', () => {
@@ -7420,6 +7461,12 @@ Paiement   : ${payLabel}`;
     }
 
     onAuthStateChanged(auth, async (user) => {
+      // Clear search bar immediately on any auth change
+      const searchInput = document.getElementById('searchInput');
+      const searchOverlayInput = document.getElementById('searchOverlayInput');
+      if (searchInput) searchInput.value = '';
+      if (searchOverlayInput) searchOverlayInput.value = '';
+      
       if (user) {
         // Check if user is actually an admin by verifying their email or role
         // Only enable admin mode if the logged-in user is an actual administrator
@@ -7433,6 +7480,13 @@ Paiement   : ${payLabel}`;
           // Change URL to /admin if not already there
           if (!window.location.pathname.includes('/admin')) {
             window.history.replaceState({}, '', '/iris-perfumes0/admin');
+          }
+          
+          // Update navigation to show admin mode
+          const navElement = document.querySelector('nav');
+          if (navElement) {
+            navElement.style.background = '#1e293b'; // Darker for admin
+            navElement.style.borderBottom = '2px solid #ef4444'; // Red border
           }
           
           // Refresh all admin-aware UI
@@ -7457,6 +7511,14 @@ Paiement   : ${payLabel}`;
           // Do NOT enable admin mode
           localStorage.removeItem('iris_is_admin');
           enableEditMode(false);
+          
+          // Reset navigation styling
+          const navElement = document.querySelector('nav');
+          if (navElement) {
+            navElement.style.background = '#0f172a';
+            navElement.style.borderBottom = '1px solid rgba(255, 255, 255, 0.1)';
+          }
+          
           console.log('User logged in but not an admin:', user.email);
         }
       } else {
@@ -7465,6 +7527,14 @@ Paiement   : ${payLabel}`;
         enableEditMode(false);
         githubToken = "";
         document.getElementById('githubToken').value = "";
+        
+        // Reset navigation styling
+        const navElement = document.querySelector('nav');
+        if (navElement) {
+          navElement.style.background = '#0f172a';
+          navElement.style.borderBottom = '1px solid rgba(255, 255, 255, 0.1)';
+        }
+        
         if (typeof renderGrid === 'function') renderGrid();
         if (typeof renderCommandesGallery === 'function') renderCommandesGallery();
         if (typeof applyCollectionBanners === 'function') applyCollectionBanners();
@@ -7643,16 +7713,40 @@ Paiement   : ${payLabel}`;
     window.addEventListener('hashchange', () => {
       const hash = window.location.hash;
       
+      // Clear search bar
+      const searchInput = document.getElementById('searchInput');
+      const searchOverlayInput = document.getElementById('searchOverlayInput');
+      if (searchInput) searchInput.value = '';
+      if (searchOverlayInput) searchOverlayInput.value = '';
+      
       if (hash === '#admin') {
         // Close user login if open
         if (typeof closeLoginOverlay === 'function') closeLoginOverlay();
-        // Open admin login ONLY if not already logged in
-        if (!auth.currentUser) {
+        
+        // Check if a regular user is trying to access admin
+        const currentUser = auth.currentUser;
+        if (currentUser && currentUser.email !== 'irisperfumes2025@gmail.com') {
+          alert('⛔ Accès refusé! Cette zone est réservée aux administrateurs.');
+          window.location.hash = '';
+          return;
+        }
+        
+        // Open admin login ONLY if not already logged in as admin
+        if (!currentUser) {
           document.getElementById('adminLoginModal').style.display = 'flex';
         }
       } else if (hash === '#login') {
         // Close admin login if open
         document.getElementById('adminLoginModal').style.display = 'none';
+        
+        // Check if admin is trying to use regular user login
+        const currentUser = auth.currentUser;
+        if (currentUser && currentUser.email === 'irisperfumes2025@gmail.com') {
+          alert('Vous êtes déjà connecté en tant qu\'administrateur');
+          window.location.hash = '';
+          return;
+        }
+        
         // Open user login
         const user = JSON.parse(localStorage.getItem('iris_user') || 'null');
         if (!user) {
@@ -7668,12 +7762,24 @@ Paiement   : ${payLabel}`;
       const path = window.location.pathname;
       const hash = window.location.hash;
       
+      // Clear search bar on load
+      setTimeout(() => {
+        const searchInput = document.getElementById('searchInput');
+        const searchOverlayInput = document.getElementById('searchOverlayInput');
+        if (searchInput) searchInput.value = '';
+        if (searchOverlayInput) searchOverlayInput.value = '';
+      }, 100);
+      
       // Admin access via /admin path or #admin hash
       if (path.includes('/admin') || hash === '#admin') {
         // Open admin login immediately ONLY if not logged in
         setTimeout(() => {
-          if (!auth.currentUser) {
+          const currentUser = auth.currentUser;
+          if (!currentUser) {
             document.getElementById('adminLoginModal').style.display = 'flex';
+          } else if (currentUser.email !== 'irisperfumes2025@gmail.com') {
+            alert('⛔ Accès refusé! Cette zone est réservée aux administrateurs.');
+            window.location.href = '/iris-perfumes0/';
           }
         }, 500);
       }
@@ -7681,12 +7787,19 @@ Paiement   : ${payLabel}`;
       // User login access via /login or /user path or #login hash
       else if (path.includes('/login') || path.includes('/user') || hash === '#login') {
         setTimeout(() => {
-          const user = JSON.parse(localStorage.getItem('iris_user') || 'null');
-          if (!user) {
-            if (typeof openLogin === 'function') openLogin();
+          const currentUser = auth.currentUser;
+          if (currentUser && currentUser.email === 'irisperfumes2025@gmail.com') {
+            // Admin trying to use user login
+            alert('Vous êtes administrateur, utilisez /#admin');
+            window.location.href = '/iris-perfumes0/admin';
           } else {
-            // Already logged in, go to dashboard
-            if (typeof showUserDashboard === 'function') showUserDashboard();
+            const user = JSON.parse(localStorage.getItem('iris_user') || 'null');
+            if (!user) {
+              if (typeof openLogin === 'function') openLogin();
+            } else {
+              // Already logged in, go to dashboard
+              if (typeof showUserDashboard === 'function') showUserDashboard();
+            }
           }
         }, 500);
       }
