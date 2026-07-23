@@ -7413,6 +7413,37 @@ Paiement   : ${payLabel}`;
     import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
     import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
+    // ====== AGGRESSIVE SEARCH BAR CLEARING ======
+    // Clear search bar everywhere and always - prevent email from showing
+    function clearAllSearchBars() {
+      const searchInput = document.getElementById('searchInput');
+      const searchOverlayInput = document.getElementById('searchOverlayInput');
+      if (searchInput && searchInput.value.includes('@')) {
+        searchInput.value = '';
+      }
+      if (searchOverlayInput && searchOverlayInput.value.includes('@')) {
+        searchOverlayInput.value = '';
+      }
+    }
+    
+    // Clear immediately
+    clearAllSearchBars();
+    
+    // Clear every 300ms (very aggressive)
+    setInterval(clearAllSearchBars, 300);
+    
+    // Clear on any click
+    document.addEventListener('click', clearAllSearchBars);
+    
+    // Prevent @ character in search
+    document.addEventListener('input', (e) => {
+      if (e.target.id === 'searchInput' || e.target.id === 'searchOverlayInput') {
+        if (e.target.value.includes('@')) {
+          e.target.value = e.target.value.replace(/@.*$/, '');
+        }
+      }
+    });
+
     const firebaseConfig = {
       apiKey: "AIzaSyAc4bNPwNL-68tNxM-ssGIhYCy7Q2NJU6A",
       authDomain: "iris-perfumes-77a4d.firebaseapp.com",
@@ -7461,42 +7492,45 @@ Paiement   : ${payLabel}`;
     }
 
     onAuthStateChanged(auth, async (user) => {
-      // Clear search bar immediately on any auth change
-      const searchInput = document.getElementById('searchInput');
-      const searchOverlayInput = document.getElementById('searchOverlayInput');
-      if (searchInput) searchInput.value = '';
-      if (searchOverlayInput) searchOverlayInput.value = '';
+      // IMMEDIATE: Clear search bars
+      setTimeout(clearAllSearchBars, 0);
+      setTimeout(clearAllSearchBars, 100);
+      setTimeout(clearAllSearchBars, 500);
       
       if (user) {
-        // Check if user is actually an admin by verifying their email or role
-        // Only enable admin mode if the logged-in user is an actual administrator
-        const adminEmail = 'irisperfumes2025@gmail.com'; // Your admin email
+        const adminEmail = 'irisperfumes2025@gmail.com';
+        const isAdmin = (user.email === adminEmail);
         
-        if (user.email === adminEmail) {
-          // ── This is an admin user ──
+        if (isAdmin) {
+          // ══════ ADMIN USER ══════
           localStorage.setItem('iris_is_admin', 'true');
+          localStorage.removeItem('iris_user'); // Clear regular user data
           enableEditMode(true);
           
-          // Change URL to /admin if not already there
-          if (!window.location.pathname.includes('/admin')) {
+          // FORCE URL to /admin
+          const currentPath = window.location.pathname;
+          if (!currentPath.includes('/admin')) {
             window.history.replaceState({}, '', '/iris-perfumes0/admin');
+            window.location.hash = ''; // Clear any hash
           }
           
-          // Update navigation to show admin mode
+          // Visual: Dark admin mode
           const navElement = document.querySelector('nav');
           if (navElement) {
-            navElement.style.background = '#1e293b'; // Darker for admin
-            navElement.style.borderBottom = '2px solid #ef4444'; // Red border
+            navElement.style.background = '#1e293b';
+            navElement.style.borderBottom = '2px solid #ef4444';
           }
           
-          // Refresh all admin-aware UI
+          // Close any user modals
+          const loginOverlay = document.getElementById('login-overlay');
+          if (loginOverlay) loginOverlay.classList.remove('active');
+          
           if (typeof renderGrid === 'function') renderGrid();
           if (typeof renderCommandesGallery === 'function') renderCommandesGallery();
           if (typeof applyCollectionBanners === 'function') applyCollectionBanners();
           if (typeof renderCarousel === 'function') renderCarousel();
           if (typeof updateNav === 'function') updateNav();
           
-          // Load GitHub token from Firebase database
           try {
             const snapshot = await get(ref(db, 'settings/githubToken'));
             if (snapshot.exists()) {
@@ -7504,31 +7538,38 @@ Paiement   : ${payLabel}`;
               document.getElementById('githubToken').value = githubToken;
             }
           } catch (e) {
-            console.error("Failed to load GitHub token from Firebase:", e);
+            console.error("Failed to load GitHub token:", e);
           }
         } else {
-          // ── Regular user (not admin) ──
-          // Do NOT enable admin mode
+          // ══════ REGULAR USER (NOT ADMIN) ══════
           localStorage.removeItem('iris_is_admin');
           enableEditMode(false);
           
-          // Reset navigation styling
+          // BLOCK from /admin path
+          if (window.location.pathname.includes('/admin') || window.location.hash === '#admin') {
+            alert('⛔ Accès refusé! Zone administrative uniquement.');
+            await signOut(auth);
+            window.location.href = '/iris-perfumes0/';
+            return;
+          }
+          
+          // Normal user styling
           const navElement = document.querySelector('nav');
           if (navElement) {
             navElement.style.background = '#0f172a';
             navElement.style.borderBottom = '1px solid rgba(255, 255, 255, 0.1)';
           }
           
-          console.log('User logged in but not an admin:', user.email);
+          console.log('Regular user logged in:', user.email);
         }
       } else {
-        // ── No user logged in ──
+        // ══════ NO USER LOGGED IN ══════
         localStorage.removeItem('iris_is_admin');
+        localStorage.removeItem('iris_user');
         enableEditMode(false);
         githubToken = "";
-        document.getElementById('githubToken').value = "";
+        if (document.getElementById('githubToken')) document.getElementById('githubToken').value = "";
         
-        // Reset navigation styling
         const navElement = document.querySelector('nav');
         if (navElement) {
           navElement.style.background = '#0f172a';
@@ -7541,43 +7582,57 @@ Paiement   : ${payLabel}`;
         if (typeof renderCarousel === 'function') renderCarousel();
         if (typeof updateNav === 'function') updateNav();
       }
+      
+      // Final clear
+      clearAllSearchBars();
     });
 
     // ====== ADMIN LOGIN BUTTON HANDLER ======
     const adminLoginBtn = document.getElementById('loginBtn');
     if (adminLoginBtn) {
-      adminLoginBtn.addEventListener('click', (e) => {
-        e.preventDefault(); // Prevent any default action
+      adminLoginBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        
+        clearAllSearchBars();
         
         const email = document.getElementById('adminEmail').value.trim();
         const pass = document.getElementById('adminPassword').value;
         const errEl = document.getElementById('loginError');
         errEl.style.display = 'none';
         
-        // Validate inputs
         if (!email || !pass) {
           errEl.textContent = "Veuillez remplir tous les champs";
           errEl.style.display = 'block';
           return;
         }
 
-        // Disable button during login
+        // BLOCK non-admin emails completely
+        if (email !== 'irisperfumes2025@gmail.com') {
+          errEl.textContent = "⛔ Accès refusé! Cette zone est réservée aux administrateurs.";
+          errEl.style.display = 'block';
+          document.getElementById('adminEmail').value = '';
+          document.getElementById('adminPassword').value = '';
+          return;
+        }
+
         adminLoginBtn.disabled = true;
         adminLoginBtn.textContent = 'Connexion...';
 
-        signInWithEmailAndPassword(auth, email, pass)
-          .then(() => {
-            // Success - modal will close and URL will change in onAuthStateChanged
-            document.getElementById('adminLoginModal').style.display = 'none';
-            adminLoginBtn.disabled = false;
-            adminLoginBtn.textContent = 'Se connecter';
-          })
-          .catch((error) => {
-            errEl.textContent = "Erreur: " + error.message;
-            errEl.style.display = 'block';
-            adminLoginBtn.disabled = false;
-            adminLoginBtn.textContent = 'Se connecter';
-          });
+        try {
+          await signInWithEmailAndPassword(auth, email, pass);
+          document.getElementById('adminLoginModal').style.display = 'none';
+          adminLoginBtn.disabled = false;
+          adminLoginBtn.textContent = 'Se connecter';
+          
+          // Clear form
+          document.getElementById('adminEmail').value = '';
+          document.getElementById('adminPassword').value = '';
+        } catch (error) {
+          errEl.textContent = "Erreur: " + error.message;
+          errEl.style.display = 'block';
+          adminLoginBtn.disabled = false;
+          adminLoginBtn.textContent = 'Se connecter';
+        }
       });
     }
     });
