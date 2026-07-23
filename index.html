@@ -8,9 +8,13 @@
   <meta name="description"
     content="Iris Perfumes – Décants et parfums originaux livrés partout en Tunisie. Par Zied Ellili." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="dns-prefetch" href="https://www.gstatic.com" />
+  <link rel="dns-prefetch" href="https://firebasestorage.googleapis.com" />
   <link
     href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Nunito:wght@300;400;500;600;700&display=swap"
-    rel="stylesheet" />
+    rel="stylesheet" media="print" onload="this.media='all'" />
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet" /></noscript>
   <!-- Google Identity script will be loaded dynamically when served over http(s) -->
   <style>
     @media (max-width: 768px) {
@@ -3023,6 +3027,18 @@
       letter-spacing: 0.01em;
     }
 
+    /* Block browser autofill styling on search bars */
+    .search-input:-webkit-autofill,
+    .search-input:-webkit-autofill:hover,
+    .search-input:-webkit-autofill:focus,
+    .search-overlay-input:-webkit-autofill,
+    .search-overlay-input:-webkit-autofill:hover,
+    .search-overlay-input:-webkit-autofill:focus {
+      -webkit-text-fill-color: transparent !important;
+      -webkit-box-shadow: 0 0 0px 1000px rgba(15,23,42,0.95) inset !important;
+      transition: background-color 5000s ease-in-out 0s;
+    }
+
     .search-input::placeholder {
       color: rgba(255,255,255,0.45);
       font-size: 0.82rem;
@@ -3497,6 +3513,7 @@
           <span class="search-icon" style="cursor: pointer;" onclick="triggerDesktopSearch()">🔍</span>
           <input type="text" class="search-input" placeholder="Rechercher un parfum..."
             oninput="handleSearch(this.value)" id="searchInput"
+            autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
             onkeydown="if(event.key==='Enter') triggerDesktopSearch()">
           <div class="search-suggestions" id="searchSuggestions"></div>
         </div>
@@ -3537,6 +3554,7 @@
       <span class="search-overlay-icon" style="cursor: pointer; pointer-events: auto;" onclick="triggerOverlaySearch()">🔍</span>
       <input type="text" class="search-overlay-input" id="searchOverlayInput"
         placeholder="Rechercher un parfum..."
+        autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
         oninput="handleOverlaySearch(this.value)"
         onkeydown="if(event.key==='Escape') closeSearchOverlay(); if(event.key==='Enter') triggerOverlaySearch();" />
       <button class="search-overlay-close" onclick="closeSearchOverlay()">✕</button>
@@ -5708,7 +5726,7 @@ Paiement   : ${payLabel}`;
     }
 
     function showUserDashboard(tab = 'commandes') {
-      history.pushState({ view: 'dashboard' }, '', '#dashboard');
+      history.pushState({ view: 'user-dashboard' }, '', '#user-dashboard');
       const user = JSON.parse(localStorage.getItem('iris_user'));
       if (!user) return openLogin();
 
@@ -5890,6 +5908,13 @@ Paiement   : ${payLabel}`;
     });
 
     function openLogin() {
+      // ⛔ BLOCK: If admin is logged in via Firebase, redirect them to admin area
+      const isAdminLoggedIn = localStorage.getItem('iris_is_admin') === 'true';
+      if (isAdminLoggedIn) {
+        alert('Vous êtes connecté en tant qu\'administrateur. Utilisez l\'espace admin.');
+        return;
+      }
+
       const user = JSON.parse(localStorage.getItem('iris_user') || 'null');
       if (user) {
         return showUserDashboard();
@@ -5901,7 +5926,7 @@ Paiement   : ${payLabel}`;
       if (searchInput) searchInput.value = '';
       if (searchOverlayInput) searchOverlayInput.value = '';
       
-      // Show login overlay (modal on top of current page)
+      // Show login overlay (modal on top of current page) - CLIENT ONLY
       const overlay = document.getElementById('login-overlay');
       if (overlay) {
         overlay.classList.add('active');
@@ -5916,18 +5941,11 @@ Paiement   : ${payLabel}`;
         appLoginContent.style.display = 'block';
       }
 
-      // Update badge based on whether we're in admin context
-      const isAdminPath = window.location.pathname.includes('/admin') || window.location.hash === '#admin';
+      // Always show CLIENT badge in user login (this is NOT the admin login)
       const badge = document.getElementById('loginBadge');
-      
       if (badge) {
-        if (isAdminPath) {
-          badge.style.background = 'linear-gradient(135deg,#ef4444,#dc2626)';
-          badge.innerHTML = '🔐 ESPACE ADMIN';
-        } else {
-          badge.style.background = 'linear-gradient(135deg,#10b981,#059669)';
-          badge.innerHTML = '👤 ESPACE CLIENT';
-        }
+        badge.style.background = 'linear-gradient(135deg,#10b981,#059669)';
+        badge.innerHTML = '👤 ESPACE CLIENT';
       }
 
       // Reset to login mode
@@ -6065,6 +6083,14 @@ Paiement   : ${payLabel}`;
       e.preventDefault();
       const f = e.target;
       const data = Object.fromEntries(new FormData(f).entries());
+
+      // ⛔ BLOCK admin email from user login form
+      if (data.email === 'irisperfumes2025@gmail.com') {
+        alert('⛔ Cet email est réservé à l\'administration. Utilisez l\'espace admin.');
+        f.reset();
+        return;
+      }
+
       // Save user account for admin to see
       let accounts = JSON.parse(localStorage.getItem('iris_accounts') || '[]');
       const existing = accounts.find(a => a.email === data.email);
@@ -7413,34 +7439,45 @@ Paiement   : ${payLabel}`;
     import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
     import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-    // ====== AGGRESSIVE SEARCH BAR CLEARING ======
-    // Clear search bar everywhere and always - prevent email from showing
+    // ====== SEARCH BAR PROTECTION ======
+    // Prevent any email/autofill from appearing in search bars
     function clearAllSearchBars() {
       const searchInput = document.getElementById('searchInput');
       const searchOverlayInput = document.getElementById('searchOverlayInput');
-      if (searchInput && searchInput.value.includes('@')) {
-        searchInput.value = '';
+      // Clear if it contains email patterns or was autofilled
+      if (searchInput && (searchInput.value.includes('@') || searchInput.value.includes('.'))) {
+        // Only clear if it looks like an email (has both @ or common email domains)
+        if (searchInput.value.includes('@') || /\.(com|tn|fr|net|org)/.test(searchInput.value)) {
+          searchInput.value = '';
+        }
       }
       if (searchOverlayInput && searchOverlayInput.value.includes('@')) {
         searchOverlayInput.value = '';
       }
     }
     
-    // Clear immediately
+    // Clear immediately on script load
     clearAllSearchBars();
     
-    // Clear every 300ms (very aggressive)
-    setInterval(clearAllSearchBars, 300);
+    // Clear after DOM is fully rendered (catches late autofill)
+    setTimeout(clearAllSearchBars, 0);
+    setTimeout(clearAllSearchBars, 200);
+    setTimeout(clearAllSearchBars, 800);
+    setTimeout(clearAllSearchBars, 2000);
     
-    // Clear on any click
-    document.addEventListener('click', clearAllSearchBars);
-    
-    // Prevent @ character in search
+    // Prevent @ character from being typed in search
     document.addEventListener('input', (e) => {
       if (e.target.id === 'searchInput' || e.target.id === 'searchOverlayInput') {
         if (e.target.value.includes('@')) {
           e.target.value = e.target.value.replace(/@.*$/, '');
         }
+      }
+    });
+
+    // Also intercept autofill by watching for changes
+    document.addEventListener('animationstart', (e) => {
+      if (e.animationName === 'onAutoFillStart') {
+        clearAllSearchBars();
       }
     });
 
@@ -7588,6 +7625,7 @@ Paiement   : ${payLabel}`;
     });
 
     // ====== ADMIN LOGIN BUTTON HANDLER ======
+    // The admin login button is inside the adminLoginModal, its id is 'loginBtn'
     const adminLoginBtn = document.getElementById('loginBtn');
     if (adminLoginBtn) {
       adminLoginBtn.addEventListener('click', async (e) => {
@@ -7624,7 +7662,7 @@ Paiement   : ${payLabel}`;
           adminLoginBtn.disabled = false;
           adminLoginBtn.textContent = 'Se connecter';
           
-          // Clear form
+          // Clear form fields after successful login
           document.getElementById('adminEmail').value = '';
           document.getElementById('adminPassword').value = '';
         } catch (error) {
@@ -7635,18 +7673,16 @@ Paiement   : ${payLabel}`;
         }
       });
     }
-    });
+    }); // end DOMContentLoaded
 
     document.getElementById('logoutBtn').addEventListener('click', () => {
       signOut(auth).then(() => {
-        // iris_is_admin cleared by onAuthStateChanged, but also clear user session
+        // Clear all admin session data
         localStorage.removeItem('iris_is_admin');
+        localStorage.removeItem('iris_user');
         
-        // Redirect to /admin login page after logout
-        window.location.href = '/iris-perfumes0/#admin';
-        
-        if (typeof renderGrid === 'function') renderGrid();
-        if (typeof updateNav === 'function') updateNav();
+        // Redirect to home page after admin logout (NOT back to admin)
+        window.location.href = '/iris-perfumes0/';
       });
     });
 
@@ -7768,7 +7804,7 @@ Paiement   : ${payLabel}`;
     window.addEventListener('hashchange', () => {
       const hash = window.location.hash;
       
-      // Clear search bar
+      // Clear search bar on any navigation
       const searchInput = document.getElementById('searchInput');
       const searchOverlayInput = document.getElementById('searchOverlayInput');
       if (searchInput) searchInput.value = '';
@@ -7778,31 +7814,32 @@ Paiement   : ${payLabel}`;
         // Close user login if open
         if (typeof closeLoginOverlay === 'function') closeLoginOverlay();
         
-        // Check if a regular user is trying to access admin
-        const currentUser = auth.currentUser;
-        if (currentUser && currentUser.email !== 'irisperfumes2025@gmail.com') {
+        // Check if a regular client-side user is trying to access admin
+        const isClientUser = !!localStorage.getItem('iris_user');
+        if (isClientUser) {
           alert('⛔ Accès refusé! Cette zone est réservée aux administrateurs.');
           window.location.hash = '';
           return;
         }
         
         // Open admin login ONLY if not already logged in as admin
-        if (!currentUser) {
+        const isAdmin = localStorage.getItem('iris_is_admin') === 'true';
+        if (!isAdmin) {
           document.getElementById('adminLoginModal').style.display = 'flex';
         }
       } else if (hash === '#login') {
         // Close admin login if open
         document.getElementById('adminLoginModal').style.display = 'none';
         
-        // Check if admin is trying to use regular user login
-        const currentUser = auth.currentUser;
-        if (currentUser && currentUser.email === 'irisperfumes2025@gmail.com') {
-          alert('Vous êtes déjà connecté en tant qu\'administrateur');
+        // Check if Firebase admin is trying to use regular user login
+        const isAdmin = localStorage.getItem('iris_is_admin') === 'true';
+        if (isAdmin) {
+          alert('Vous êtes connecté en tant qu\'administrateur. Accès client non autorisé.');
           window.location.hash = '';
           return;
         }
         
-        // Open user login
+        // Open user login for normal clients
         const user = JSON.parse(localStorage.getItem('iris_user') || 'null');
         if (!user) {
           if (typeof openLogin === 'function') openLogin();
@@ -7817,42 +7854,50 @@ Paiement   : ${payLabel}`;
       const path = window.location.pathname;
       const hash = window.location.hash;
       
-      // Clear search bar on load
-      setTimeout(() => {
+      // Aggressively clear search bar on load to stop browser autofill
+      const clearSearch = () => {
         const searchInput = document.getElementById('searchInput');
         const searchOverlayInput = document.getElementById('searchOverlayInput');
-        if (searchInput) searchInput.value = '';
-        if (searchOverlayInput) searchOverlayInput.value = '';
-      }, 100);
+        if (searchInput) { searchInput.value = ''; searchInput.removeAttribute('value'); }
+        if (searchOverlayInput) { searchOverlayInput.value = ''; searchOverlayInput.removeAttribute('value'); }
+      };
+      clearSearch();
+      setTimeout(clearSearch, 100);
+      setTimeout(clearSearch, 500);
+      setTimeout(clearSearch, 1500);
       
       // Admin access via /admin path or #admin hash
       if (path.includes('/admin') || hash === '#admin') {
-        // Open admin login immediately ONLY if not logged in
+        // Use onAuthStateChanged (not auth.currentUser) for reliable auth state at load time
+        // The check is done in onAuthStateChanged above; here we just open the modal if no admin
         setTimeout(() => {
-          const currentUser = auth.currentUser;
-          if (!currentUser) {
-            document.getElementById('adminLoginModal').style.display = 'flex';
-          } else if (currentUser.email !== 'irisperfumes2025@gmail.com') {
+          const isAdmin = localStorage.getItem('iris_is_admin') === 'true';
+          const isClientUser = !!localStorage.getItem('iris_user');
+          if (isClientUser) {
+            // Regular user trying to access admin path
             alert('⛔ Accès refusé! Cette zone est réservée aux administrateurs.');
             window.location.href = '/iris-perfumes0/';
+          } else if (!isAdmin) {
+            // Not logged in at all - show admin login modal
+            document.getElementById('adminLoginModal').style.display = 'flex';
           }
-        }, 500);
+          // If isAdmin is true, onAuthStateChanged already handled setting up the admin UI
+        }, 800);
       }
       
-      // User login access via /login or /user path or #login hash
-      else if (path.includes('/login') || path.includes('/user') || hash === '#login') {
+      // User login access via #login hash
+      else if (hash === '#login') {
         setTimeout(() => {
-          const currentUser = auth.currentUser;
-          if (currentUser && currentUser.email === 'irisperfumes2025@gmail.com') {
-            // Admin trying to use user login
-            alert('Vous êtes administrateur, utilisez /#admin');
-            window.location.href = '/iris-perfumes0/admin';
+          const isAdmin = localStorage.getItem('iris_is_admin') === 'true';
+          if (isAdmin) {
+            // Admin trying to access user login
+            alert('Vous êtes connecté en tant qu\'administrateur.');
+            window.location.hash = '';
           } else {
             const user = JSON.parse(localStorage.getItem('iris_user') || 'null');
             if (!user) {
               if (typeof openLogin === 'function') openLogin();
             } else {
-              // Already logged in, go to dashboard
               if (typeof showUserDashboard === 'function') showUserDashboard();
             }
           }
