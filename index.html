@@ -3721,7 +3721,7 @@
             <div class="step"><div class="stc">1</div><div class="stt">Choisissez votre parfum</div><div class="std">Parcourez le catalogue, cliquez sur un produit et choisissez une taille (5 / 10 / 20 / 30 ml).</div></div>
             <div class="step"><div class="stc">2</div><div class="stt">Ajoutez au panier ou commandez</div><div class="std">Ajoutez plusieurs produits au panier ou cliquez sur "Commander" pour remplir le formulaire pré-rempli.</div></div>
             <div class="step"><div class="stc">3</div><div class="stt">Confirmation</div><div class="std">Nous confirmons la disponibilité et le prix par WhatsApp avant préparation.</div></div>
-            <div class="step"><div class="stc">4</div><div class="stt">Livraison & Paiement</div><div class="std">Livraison partout en Tunisie. Livraison gratuite à partir de 20ml. Paiement à la livraison.</div></div>
+            <div class="step"><div class="stc">4</div><div class="stt">Livraison & Paiement</div><div class="std">Livraison partout en Tunisie. Livraison gratuite à partir de 20ml (Designer) ou 30ml (Niche). Paiement à la livraison.</div></div>
           </div>
         </div>
       </section>
@@ -3941,9 +3941,24 @@
           </div>
         </div>
         <div class="fbot">
-          <p>© 2025 IrisPerfumes — Créé par <strong style="color:#a78bfa">ziedellili54@gmail.com</strong></p>
+          <p id="iris-admin-trigger" style="cursor:default;user-select:none;">© 2025 IrisPerfumes — Créé par <strong style="color:#a78bfa">ziedellili54@gmail.com</strong></p>
           <p>Parfums 100% originaux garantis</p>
         </div>
+        <script>
+          (function(){
+            var clicks=0,timer=null;
+            document.getElementById('iris-admin-trigger').addEventListener('click',function(){
+              clicks++;
+              clearTimeout(timer);
+              timer=setTimeout(function(){clicks=0;},2000);
+              if(clicks>=5){
+                clicks=0;
+                if(typeof window.openAdminLogin==='function') window.openAdminLogin();
+                else document.getElementById('adminLoginModal').style.display='flex';
+              }
+            });
+          })();
+        </script>
       </footer>
     </div>
   </div>
@@ -4227,7 +4242,7 @@
 
   <!-- LOGIN OVERLAY MODAL -->
   <div id="login-overlay" onclick="if(event.target===this)closeLoginOverlay()">
-    <div id="login-modal-box">
+    <div id="login-modal-box" style="border:3px solid #10b981;">
       <button class="close-login-overlay" onclick="closeLoginOverlay()" title="Fermer">×</button>
 
       <!-- LOGIN / REGISTER PAGE VIEW (also used as fallback page) -->
@@ -4241,8 +4256,12 @@
             </div>
 
             <div style="text-align: center; margin-bottom: 3rem;">
+              <!-- USER BADGE -->
+              <div style="display:inline-block; background:linear-gradient(135deg,#10b981,#059669); color:#fff; padding:0.4rem 1.5rem; border-radius:99px; font-size:0.75rem; font-weight:900; letter-spacing:1px; margin-bottom:1rem; box-shadow:0 4px 15px rgba(16,185,129,0.4);">
+                👤 ESPACE CLIENT
+              </div>
               <img src="logo/iris_logo_fini_3.webp" alt="Iris Perfumes"
-                style="height: 65px; object-fit: contain; border-radius: 50%;">
+                style="height: 65px; object-fit: contain; border-radius: 50%; display:block; margin:1rem auto;">
               <h1 id="login-title"
                 style="font-family: var(--serif); font-size: 2.2rem; font-weight: 700; color: #0f172a; margin-top: 1.5rem; letter-spacing: -1px;">
                 Accéder à votre compte</h1>
@@ -5521,7 +5540,8 @@
       itemsEl.innerHTML = html;
       const SHIPPING_FEE = 8;
       // Designer = homme + femme genres; Niche = genre 'niche'
-      // Free shipping: designer parfum >= 20ml total OR niche parfum >= 30ml total
+      // Free shipping: designer parfum >= 20ml total AND niche parfum >= 30ml total
+      // Both conditions must be met separately
       const designerMl = cart.reduce((s, it) => {
         const p2 = PERFS.find(x => x.id === it.id);
         if (!p2 || p2.genre === 'niche') return s;
@@ -5532,7 +5552,19 @@
         if (!p2 || p2.genre !== 'niche') return s;
         return s + ((it.size === 'full') ? 0 : (Number(it.size) || 0) * (it.qty || 1));
       }, 0);
-      const shipping = (designerMl >= 20 || nicheMl >= 30) ? 0 : SHIPPING_FEE;
+      // Free shipping if: (has designer and >= 20ml) OR (has niche and >= 30ml)
+      // If cart has both types, both must meet their thresholds
+      const hasDesigner = designerMl > 0;
+      const hasNiche = nicheMl > 0;
+      let freeShipping = false;
+      if (hasDesigner && hasNiche) {
+        freeShipping = (designerMl >= 20 && nicheMl >= 30);
+      } else if (hasDesigner) {
+        freeShipping = designerMl >= 20;
+      } else if (hasNiche) {
+        freeShipping = nicheMl >= 30;
+      }
+      const shipping = freeShipping ? 0 : SHIPPING_FEE;
       const total = subtotal + shipping;
       const shippingEl = document.getElementById('co_shipping');
 
@@ -5584,7 +5616,19 @@
         if (!p2 || p2.genre !== 'niche') return s;
         return s + ((it.size === 'full') ? 0 : (Number(it.size) || 0) * (it.qty || 1));
       }, 0);
-      const shipping = (designerMl2 >= 20 || nicheMl2 >= 30) ? 0 : SHIPPING_FEE;
+      // Free shipping if: (has designer and >= 20ml) OR (has niche and >= 30ml)
+      // If cart has both types, both must meet their thresholds
+      const hasDesigner2 = designerMl2 > 0;
+      const hasNiche2 = nicheMl2 > 0;
+      let freeShipping2 = false;
+      if (hasDesigner2 && hasNiche2) {
+        freeShipping2 = (designerMl2 >= 20 && nicheMl2 >= 30);
+      } else if (hasDesigner2) {
+        freeShipping2 = designerMl2 >= 20;
+      } else if (hasNiche2) {
+        freeShipping2 = nicheMl2 >= 30;
+      }
+      const shipping = freeShipping2 ? 0 : SHIPPING_FEE;
       const total = subtotal + shipping;
 
       const payLabel = paymentMethod === 'cod' ? 'Paiement a la livraison' : paymentMethod === 'bank' ? 'Virement bancaire' : 'Paiement par carte';
@@ -6000,17 +6044,6 @@ Paiement   : ${payLabel}`;
       e.preventDefault();
       const f = e.target;
       const data = Object.fromEntries(new FormData(f).entries());
-      // Admin check: irisperfumes2025@gmail.com / Ir!s_Perfumes_Admin_2026$$
-      if (data.email === 'irisperfumes2025@gmail.com' && data.password === 'Ir!s_Perfumes_Admin_2026$$') {
-        localStorage.setItem('iris_is_admin', 'true');
-        const adminUser = { name: 'Admin Zied', email: data.email, picture: 'https://ui-avatars.com/api/?name=Admin&background=6c3fc5&color=fff' };
-        localStorage.setItem('iris_user', JSON.stringify(adminUser));
-        renderGrid();
-        closeLoginOverlay();
-        openAdmin();
-        alert('Bienvenue Admin !');
-        return;
-      }
       // Save user account for admin to see
       let accounts = JSON.parse(localStorage.getItem('iris_accounts') || '[]');
       const existing = accounts.find(a => a.email === data.email);
@@ -6172,17 +6205,48 @@ Paiement   : ${payLabel}`;
         </div>
       </div>`;
       });
-      const SHIPPING_MIN_ML = 20;
       const SHIPPING_FEE = 8;
-      const shipping = (totalMl >= SHIPPING_MIN_ML) ? 0 : SHIPPING_FEE;
+      // Calculate shipping based on Designer (20ml) and Niche (30ml) thresholds
+      const designerMlCart = cart.reduce((s, it) => {
+        const p2 = PERFS.find(x => x.id === it.id);
+        if (!p2 || p2.genre === 'niche') return s;
+        return s + ((it.size === 'full') ? 0 : (Number(it.size) || 0) * (it.qty || 1));
+      }, 0);
+      const nicheMlCart = cart.reduce((s, it) => {
+        const p2 = PERFS.find(x => x.id === it.id);
+        if (!p2 || p2.genre !== 'niche') return s;
+        return s + ((it.size === 'full') ? 0 : (Number(it.size) || 0) * (it.qty || 1));
+      }, 0);
+      const hasDesignerCart = designerMlCart > 0;
+      const hasNicheCart = nicheMlCart > 0;
+      let freeShippingCart = false;
+      if (hasDesignerCart && hasNicheCart) {
+        freeShippingCart = (designerMlCart >= 20 && nicheMlCart >= 30);
+      } else if (hasDesignerCart) {
+        freeShippingCart = designerMlCart >= 20;
+      } else if (hasNicheCart) {
+        freeShippingCart = nicheMlCart >= 30;
+      }
+      const shipping = freeShippingCart ? 0 : SHIPPING_FEE;
       const grand = itemsTotal + shipping;
+      
+      // Build shipping message
+      let shippingMsg = '';
+      if (hasDesignerCart && hasNicheCart) {
+        shippingMsg = '(Designer ≥20ml ET Niche ≥30ml pour gratuit)';
+      } else if (hasDesignerCart) {
+        shippingMsg = '(Gratuite dès 20ml)';
+      } else if (hasNicheCart) {
+        shippingMsg = '(Gratuite dès 30ml)';
+      }
+      
       wrap.innerHTML = `
     <div class="mbr">Votre panier</div>
     <div class="mdesc">Récapitulatif et paiement</div>
     <div style="max-height:48vh;overflow:auto;margin-top:1rem">${itemsHtml}</div>
     <div style="margin-top:1rem;text-align:right">
       <div style="font-size:.95rem">Sous-total: <strong>${itemsTotal} TND</strong></div>
-      <div style="font-size:.95rem">Livraison: <strong style="color: ${shipping === 0 ? '#10b981' : 'inherit'}">${shipping === 0 ? 'Gratuit' : shipping + ' TND'}</strong> <span style="color:var(--gray);font-size:.82rem">(Gratuite dès ${SHIPPING_MIN_ML}ml ou 2x 15ml+)</span></div>
+      <div style="font-size:.95rem">Livraison: <strong style="color: ${shipping === 0 ? '#10b981' : 'inherit'}">${shipping === 0 ? 'Gratuit' : shipping + ' TND'}</strong> <span style="color:var(--gray);font-size:.82rem">${shippingMsg}</span></div>
       <div style="font-size:1.1rem;margin-top:.5rem">Total: <strong>${grand} TND</strong></div>
     </div>
     <div style="display:flex;gap:.6rem;justify-content:flex-end;margin-top:1rem">
@@ -7255,10 +7319,14 @@ Paiement   : ${payLabel}`;
 
   <!-- ====== ADMIN LOGIN MODAL ====== -->
   <div id="adminLoginModal" onclick="if(event.target===this)document.getElementById('adminLoginModal').style.display='none'" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:999999; align-items:center; justify-content:center; padding:1rem; box-sizing:border-box; backdrop-filter: blur(5px);">
-    <div style="background:#fff; border-radius:24px; max-width:400px; width:100%; padding:2.5rem; position:relative; box-shadow:0 25px 60px rgba(0,0,0,0.3); text-align:center;">
+    <div style="background:#fff; border-radius:24px; max-width:400px; width:100%; padding:2.5rem; position:relative; box-shadow:0 25px 60px rgba(0,0,0,0.3); text-align:center; border:3px solid #ef4444;">
+      <!-- ADMIN BADGE -->
+      <div style="position:absolute; top:-15px; left:50%; transform:translateX(-50%); background:linear-gradient(135deg,#ef4444,#dc2626); color:#fff; padding:0.4rem 1.5rem; border-radius:99px; font-size:0.75rem; font-weight:900; letter-spacing:1px; box-shadow:0 4px 15px rgba(239,68,68,0.4);">
+        🔐 ADMIN ONLY
+      </div>
       <button onclick="document.getElementById('adminLoginModal').style.display='none'" style="position:absolute; top:1.2rem; right:1.2rem; background:none; border:none; font-size:1.5rem; cursor:pointer; color:#94a3b8;">&times;</button>
-      <h2 style="font-size:1.6rem; font-weight:800; color:#0f172a; margin-bottom:0.5rem; font-family:var(--serif);">Administration</h2>
-      <p style="font-size:0.9rem; color:#64748b; margin-bottom:2rem; font-family:var(--sans);">Connectez-vous pour modifier le site</p>
+      <h2 style="font-size:1.6rem; font-weight:800; color:#ef4444; margin-bottom:0.5rem; font-family:var(--serif); margin-top:1rem;">🔧 Administration</h2>
+      <p style="font-size:0.9rem; color:#64748b; margin-bottom:2rem; font-family:var(--sans);">Accès réservé aux administrateurs du site</p>
       
       <div style="text-align:left; margin-bottom:1.2rem;">
         <label style="font-size:0.85rem; font-weight:700; color:#475569; display:block; margin-bottom:6px;">Adresse e-mail</label>
@@ -7353,8 +7421,16 @@ Paiement   : ${payLabel}`;
 
     onAuthStateChanged(auth, async (user) => {
       if (user) {
+        // ── Sync iris_is_admin flag so all existing UI code (renderGrid etc.) sees admin state ──
+        localStorage.setItem('iris_is_admin', 'true');
         enableEditMode(true);
-        // Load GitHub token from database
+        // Refresh all admin-aware UI
+        if (typeof renderGrid === 'function') renderGrid();
+        if (typeof renderCommandesGallery === 'function') renderCommandesGallery();
+        if (typeof applyCollectionBanners === 'function') applyCollectionBanners();
+        if (typeof renderCarousel === 'function') renderCarousel();
+        if (typeof updateNav === 'function') updateNav();
+        // Load GitHub token from Firebase database
         try {
           const snapshot = await get(ref(db, 'settings/githubToken'));
           if (snapshot.exists()) {
@@ -7365,9 +7441,16 @@ Paiement   : ${payLabel}`;
           console.error("Failed to load GitHub token from Firebase:", e);
         }
       } else {
+        // ── Clear admin flag and refresh all UI ──
+        localStorage.removeItem('iris_is_admin');
         enableEditMode(false);
         githubToken = "";
         document.getElementById('githubToken').value = "";
+        if (typeof renderGrid === 'function') renderGrid();
+        if (typeof renderCommandesGallery === 'function') renderCommandesGallery();
+        if (typeof applyCollectionBanners === 'function') applyCollectionBanners();
+        if (typeof renderCarousel === 'function') renderCarousel();
+        if (typeof updateNav === 'function') updateNav();
       }
     });
 
@@ -7388,7 +7471,13 @@ Paiement   : ${payLabel}`;
     });
 
     document.getElementById('logoutBtn').addEventListener('click', () => {
-      signOut(auth);
+      signOut(auth).then(() => {
+        // iris_is_admin cleared by onAuthStateChanged, but also clear user session
+        localStorage.removeItem('iris_is_admin');
+        if (typeof renderGrid === 'function') renderGrid();
+        if (typeof updateNav === 'function') updateNav();
+        if (typeof goHome === 'function') goHome();
+      });
     });
 
     // GitHub Save Trigger
@@ -7501,6 +7590,71 @@ Paiement   : ${payLabel}`;
         enableEditMode(true);
       }
     }
+
+    // ====== URL ROUTING: SEPARATE ADMIN AND USER ACCESS ======
+    // Handle URL-based navigation for admin and user login
+    
+    // Handle hash changes in real-time
+    window.addEventListener('hashchange', () => {
+      const hash = window.location.hash;
+      
+      if (hash === '#admin') {
+        // Close user login if open
+        closeLoginOverlay();
+        // Open admin login
+        if (!auth.currentUser) {
+          document.getElementById('adminLoginModal').style.display = 'flex';
+        }
+      } else if (hash === '#login') {
+        // Close admin login if open
+        document.getElementById('adminLoginModal').style.display = 'none';
+        // Open user login
+        const user = JSON.parse(localStorage.getItem('iris_user') || 'null');
+        if (!user) {
+          openLogin();
+        } else {
+          showUserDashboard();
+        }
+      }
+    });
+    
+    // Handle initial page load
+    window.addEventListener('load', () => {
+      const path = window.location.pathname;
+      const hash = window.location.hash;
+      
+      // Admin access via /admin path or #admin hash
+      if (path.includes('/admin') || hash === '#admin') {
+        // Open admin login immediately
+        setTimeout(() => {
+          if (!auth.currentUser) {
+            document.getElementById('adminLoginModal').style.display = 'flex';
+          }
+        }, 500);
+      }
+      
+      // User login access via /login or /user path or #login hash
+      else if (path.includes('/login') || path.includes('/user') || hash === '#login') {
+        setTimeout(() => {
+          const user = JSON.parse(localStorage.getItem('iris_user') || 'null');
+          if (!user) {
+            openLogin();
+          } else {
+            // Already logged in, go to dashboard
+            showUserDashboard();
+          }
+        }, 500);
+      }
+    });
+
+    // Provide global navigation functions for direct URL access
+    window.goToAdmin = () => {
+      window.location.hash = '#admin';
+    };
+
+    window.goToUserLogin = () => {
+      window.location.hash = '#login';
+    };
 
   </script>
 </body>
