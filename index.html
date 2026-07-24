@@ -7397,15 +7397,15 @@ Paiement   : ${payLabel}`;
       
       <div style="text-align:left; margin-bottom:1.2rem;">
         <label style="font-size:0.85rem; font-weight:700; color:#475569; display:block; margin-bottom:6px;">Adresse e-mail</label>
-        <input type="email" id="adminEmail" placeholder="admin@iris.com" style="width:100%; padding:0.8rem 1rem; border:1.5px solid #e2e8f0; border-radius:12px; font-size:1rem; box-sizing:border-box; outline:none; transition:border-color 0.3s;" onfocus="this.style.borderColor='var(--p1)'" onblur="this.style.borderColor='#e2e8f0'" onkeypress="if(event.key==='Enter') document.getElementById('loginBtn').click()">
+        <input type="email" id="adminEmail" placeholder="admin@iris.com" style="width:100%; padding:0.8rem 1rem; border:1.5px solid #e2e8f0; border-radius:12px; font-size:1rem; box-sizing:border-box; outline:none; transition:border-color 0.3s;" onfocus="this.style.borderColor='var(--p1)'" onblur="this.style.borderColor='#e2e8f0'" onkeypress="if(event.key==='Enter') document.getElementById('adminSubmitLoginBtn').click()">
       </div>
       
       <div style="text-align:left; margin-bottom:2rem;">
         <label style="font-size:0.85rem; font-weight:700; color:#475569; display:block; margin-bottom:6px;">Mot de passe</label>
-        <input type="password" id="adminPassword" placeholder="••••••••" style="width:100%; padding:0.8rem 1rem; border:1.5px solid #e2e8f0; border-radius:12px; font-size:1rem; box-sizing:border-box; outline:none; transition:border-color 0.3s;" onfocus="this.style.borderColor='var(--p1)'" onblur="this.style.borderColor='#e2e8f0'" onkeypress="if(event.key==='Enter') document.getElementById('loginBtn').click()">
+        <input type="password" id="adminPassword" placeholder="••••••••" style="width:100%; padding:0.8rem 1rem; border:1.5px solid #e2e8f0; border-radius:12px; font-size:1rem; box-sizing:border-box; outline:none; transition:border-color 0.3s;" onfocus="this.style.borderColor='var(--p1)'" onblur="this.style.borderColor='#e2e8f0'" onkeypress="if(event.key==='Enter') document.getElementById('adminSubmitLoginBtn').click()">
       </div>
       
-      <button id="loginBtn" style="width:100%; padding:1rem; font-size:1.05rem; font-weight:800; background:linear-gradient(135deg, var(--p1), var(--p2)); color:white; border:none; border-radius:12px; cursor:pointer; box-shadow:0 8px 20px rgba(108,63,197,0.3); transition:all 0.3s;">
+      <button id="adminSubmitLoginBtn" style="width:100%; padding:1rem; font-size:1.05rem; font-weight:800; background:linear-gradient(135deg, var(--p1), var(--p2)); color:white; border:none; border-radius:12px; cursor:pointer; box-shadow:0 8px 20px rgba(108,63,197,0.3); transition:all 0.3s;">
         Se connecter
       </button>
       <p id="loginError" style="color:#ef4444; font-size:0.85rem; margin-top:1rem; display:none;"></p>
@@ -7544,11 +7544,9 @@ Paiement   : ${payLabel}`;
           localStorage.removeItem('iris_user'); // Clear regular user data
           enableEditMode(true);
           
-          // FORCE URL to /admin
-          const currentPath = window.location.pathname;
-          if (!currentPath.includes('/admin')) {
-            window.history.replaceState({}, '', '/iris-perfumes0/admin');
-            window.location.hash = ''; // Clear any hash
+          // FORCE URL hash to #admin
+          if (window.location.hash !== '#admin') {
+            window.location.hash = '#admin';
           }
           
           // Visual: Dark admin mode
@@ -7625,8 +7623,7 @@ Paiement   : ${payLabel}`;
     });
 
     // ====== ADMIN LOGIN BUTTON HANDLER ======
-    // The admin login button is inside the adminLoginModal, its id is 'loginBtn'
-    const adminLoginBtn = document.getElementById('loginBtn');
+    const adminLoginBtn = document.getElementById('adminSubmitLoginBtn');
     if (adminLoginBtn) {
       adminLoginBtn.addEventListener('click', async (e) => {
         e.preventDefault();
@@ -7681,8 +7678,9 @@ Paiement   : ${payLabel}`;
         localStorage.removeItem('iris_is_admin');
         localStorage.removeItem('iris_user');
         
-        // Redirect to home page after admin logout (NOT back to admin)
-        window.location.href = '/iris-perfumes0/';
+        // Redirect to home page after admin logout
+        window.location.hash = '';
+        window.location.reload();
       });
     });
 
